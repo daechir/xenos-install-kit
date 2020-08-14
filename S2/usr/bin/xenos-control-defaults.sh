@@ -3,32 +3,36 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 07/11/20
+# Modified Date: 07/30/20
 # Version: v1
 
 
 # Variables
 nmfile="/usr/lib/NetworkManager/conf.d/20-connectivity.conf"
-mimefiles1=( "firefox" "gimp" "howl" "libreoffice-base" "libreoffice-calc" "libreoffice-draw" "libreoffice-impress" "libreoffice-math" "libreoffice-writer" "org" "vlc" )
-mimefiles2=( "base" "calc" "draw" "impress" "math" "writer" )
+mimefiles1=/usr/share/applications/*
+mimefiles2=/usr/lib/libreoffice/share/xdg/*
 
 
 control_defaults() {
-	if [[ -e "${nmfile}" ]]; then
-		rm -rf "${nmfile}"
-	fi
+  if [[ -f "${nmfile}" ]]; then
+    rm -f "${nmfile}"
+  fi
 
-	for mime in "${mimefiles1[@]}"
-	do
-		sed -i "s/^MimeType=.*/MimeType=/g" /usr/share/applications/"$mime"*
-	done
+  for mime in $mimefiles1
+  do
+    local mimefiles1grep=$(grep -i "MimeType" "${mime}")
 
-	for mime in "${mimefiles2[@]}"
-	do
-		sed -i "s/^MimeType=.*/MimeType=/g" /usr/lib/libreoffice/share/xdg/"$mime"*
-	done
+    if [[ -n "${mimefiles1grep}" ]]; then
+      sed -i "s/^MimeType=.*/MimeType=/g" "${mime}"
+    fi
+  done
 
-	update-desktop-database
+  for mime in $mimefiles2
+  do
+    sed -i "s/^MimeType=.*/MimeType=/g" "${mime}"
+  done
+
+  update-desktop-database
 }
 
 

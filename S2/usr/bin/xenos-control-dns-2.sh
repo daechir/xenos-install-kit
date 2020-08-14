@@ -4,7 +4,7 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 07/11/20
+# Modified Date: 07/30/20
 # Version: v1
 
 
@@ -16,7 +16,7 @@ active_device=$(ip -o link show | awk '{print $2,$9}' | grep "UP" | awk '{print 
 pkill openvpn
 
 if [[ -n "${active_device}" ]]; then
-	nmcli device disconnect "${active_device}"
+  nmcli device disconnect "${active_device}"
 fi
 
 resolvectl reset-server-features

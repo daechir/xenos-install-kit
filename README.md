@@ -2,17 +2,44 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 07/11/20 <br/>
-Version: v1
+Modified Date: 08/14/20 <br/>
+Version: v2
+
+
+## Changelog
++ v2
+  * S1.sh
+    + Make xfs the default filesystem.
+    + Make systemd-boot the default bootloader.
+  * S2b.sh
+    + Variables:
+      * Add:
+        + cputhreads
+        + install_nvidia
+        + install_optimus
+      * Change:
+        + has_tpm to explicit.
+      * Remove
+        + has_rtl
+    + Enhance makepkg speed.
+    + Migrate from lxqt to a custom built DE.
+    + Integrate minimalistic software replacements for frequently used software (mpv replaces vlc for example).
+    + Make alsa the default audio handler.
+    + Remove RTL8821CE-dkms for upcoming rtw88 mainline driver.
+    + Simplify xenos-control-defaults.sh.
+    + Make tlp modifications global.
+    + Remove default editor variable from /etc/environment.
+    + Make doas the default privilege handler.
 
 
 ## Purpose
 The Xenos Install Kit serves as a custom automated Arch Linux installer fine tuned for specific use cases:
 + It's ideal for those who want a fully featured OS without too much bloat.
 + It's ideal for those who desire security above all else.
++ It's ideal for an intermediate to expert linux user.
 + It's ideal for those who are ok with troubleshooting issues on their own as:
-	* The software may not always work as expected.
-	* Or specific hardware may not always work as expected.
+  * The software may not always work as expected.
+  * Or specific hardware may not always work as expected.
 
 If any of the above criteria fit your use case then make sure to audit the scripts before use.
 
@@ -44,30 +71,36 @@ And much much more.
 + https://wiki.archlinux.org/index.php/Installation_Guide
 + https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption
 + https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system
++ https://wiki.archlinux.org/index.php/Systemd-boot
 ### S2 (Step 2)
 #### S2a .sh
 + https://wiki.archlinux.org/index.php/Simple_stateful_firewall
 #### S2b .sh
 + install_essentials()
-	* https://github.com/Askannz/optimus-manager
-	* https://github.com/Askannz/optimus-manager/wiki/A-guide--to-power-management-options
+  * https://wiki.archlinux.org/index.php/Makepkg
+  * https://wiki.archlinux.org/index.php/Xorg
+  * https://github.com/Askannz/optimus-manager
+  * https://github.com/Askannz/optimus-manager/wiki/A-guide--to-power-management-options
+  * https://wiki.archlinux.org/index.php/List_of_Applications
+  * https://wiki.archlinux.org/index.php/Smartcards
+  * https://wiki.archlinux.org/index.php/Trusted_Platform_Module
+  * https://github.com/venam/2bwm
 + install_optionals()
-	* https://wiki.archlinux.org/index.php/Trusted_Platform_Module
-	* https://github.com/jonathanio/update-systemd-resolved
-	* https://github.com/jonathanio/update-systemd-resolved/issues/59
-	* https://developer.gnome.org/NetworkManager/stable/NetworkManager.html
-	* https://developer.gnome.org/NetworkManager/stable/NetworkManager.conf.html
-	* https://wiki.archlinux.org/index.php/Systemd-resolved
+  * https://github.com/jonathanio/update-systemd-resolved
+  * https://developer.gnome.org/NetworkManager/stable/NetworkManager.html
+  * https://developer.gnome.org/NetworkManager/stable/NetworkManager.conf.html
+  * https://wiki.archlinux.org/index.php/Systemd-resolved
 + misc_fixes()
-	* https://www.freedesktop.org/software/systemd/man/journald.conf
-	* https://wiki.archlinux.org/index.php/Iw
-	* https://wiki.archlinux.org/index.php/Lm_sensors
-	* https://wiki.archlinux.org/index.php/PulseAudio/Examples
-	* https://www.freedesktop.org/software/systemd/man/user.conf.d.html
+  * https://www.freedesktop.org/software/systemd/man/journald.conf
+  * https://wiki.archlinux.org/index.php/Apparmor
+  * https://wiki.archlinux.org/index.php/Iw
+  * https://wiki.archlinux.org/index.php/Lm_sensors
+  * https://www.freedesktop.org/software/systemd/man/user.conf.d.html
+  * https://wiki.archlinux.org/index.php/Tlp
 + harden_parts()
-	* https://github.com/Neo23x0/auditd/blob/master/audit.rules
-	* https://wiki.archlinux.org/index.php/Security
-	* ~~https://theprivacyguide1.github.io/linux_hardening_guide.html~~ (Link is deprecated)
-	* https://obscurix.github.io
-	* https://github.com/Whonix/security-misc
+  * https://github.com/Neo23x0/auditd/blob/master/audit.rules
+  * https://wiki.archlinux.org/index.php/Security
+  * https://theprivacyguide1.github.io/linux_hardening_guide.html
+  * https://obscurix.github.io
+  * https://github.com/Whonix/security-misc
 
