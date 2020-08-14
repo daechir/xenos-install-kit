@@ -1,0 +1,9 @@
+[Unit]
+Description=xenos-control-defaults.sh
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/xenos-control-defaults.sh
+
+[Install]
+WantedBy=multi-user.target
