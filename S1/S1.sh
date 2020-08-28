@@ -12,13 +12,14 @@ drive="/dev/sda"
 luks_password="$"
 mirror_list="https://www.archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on"
 is_intel_cpu=$(lscpu | grep "Intel" &> /dev/null && echo "yes" || echo "")
-core_pack="apparmor base base-devel dhcpcd git linux-hardened linux-hardened-headers linux-firmware lvm2 nano unzip xfsprogs"
+kernel_type="linux-hardened"
+core_pack="apparmor base base-devel dhcpcd git ${kernel_type} ${kernel_type}-headers linux-firmware lvm2 nano unzip xfsprogs"
 if [[ -n "${is_intel_cpu}" ]]; then
   core_pack="${core_pack} intel-ucode"
-  systemdboot_entry="title Arch Linux\nlinux /vmlinuz-linux-hardened\ninitrd /intel-ucode.img\ninitrd /initramfs-linux-hardened.img\noptions"
+  systemdboot_entry="title Arch Linux\nlinux /vmlinuz-${kernel_type}\ninitrd /intel-ucode.img\ninitrd /initramfs-${kernel_type}.img\noptions"
 else
   core_pack="${core_pack} amd-ucode"
-  systemdboot_entry="title Arch Linux\nlinux /vmlinuz-linux-hardened\ninitrd /amd-ucode.img\ninitrd /initramfs-linux-hardened.img\noptions"
+  systemdboot_entry="title Arch Linux\nlinux /vmlinuz-${kernel_type}\ninitrd /amd-ucode.img\ninitrd /initramfs-${kernel_type}.img\noptions"
 fi
 timezone="America/New_York"
 language="en_US.UTF-8"
@@ -42,7 +43,7 @@ systemdboot_options="${systemdboot_options} random.trust_cpu=off"
 if [[ -n "${is_intel_cpu}" ]]; then
   systemdboot_options="${systemdboot_options} intel_iommu=on modprobe.blacklist=nouveau pci=noaer"
 else
-  systemdboot_options="${systemdboot_options} amd_iommu=on acpi_backlight=vendor mem_encrypt=off"
+  systemdboot_options="${systemdboot_options} amd_iommu=on acpi_backlight=vendor"
 fi
 systemdboot_options="${systemdboot_options} efi=disable_early_pci_dma"
 # Kernel hardening
@@ -162,7 +163,7 @@ arch-chroot /mnt /bin/bash <<EOF
 
   # Configure mkinitcpio for luks
   sed -i "s/^HOOKS=.*/HOOKS=(base udev autodetect keyboard modconf block encrypt lvm2 filesystems fsck)/g" /etc/mkinitcpio.conf
-  mkinitcpio -p linux-hardened
+  mkinitcpio -p "${kernel_type}"
 
   # Configure systemd-boot
   bootctl install

@@ -23,7 +23,7 @@ install_essentials() {
   ### Begin core_pack generation
   ## Boilerplate
   # Base
-  core_pack="xorg-server xorg-xbacklight xorg-xinit xorg-xinput xorg-xsetroot xorgproto"
+  core_pack="xorg-server xorg-xinit xorg-xinput xorg-xsetroot xorgproto"
 
   # Graphic Drivers
   if [[ -n "${is_amd_gpu}" ]]; then
@@ -72,7 +72,7 @@ install_essentials() {
   # Graphics
   core_pack="${core_pack} gimp inkscape qiv"
   # Misc
-  core_pack="${core_pack} bash-completion gnome-keyring neofetch opendoas pacman-contrib slock xautolock xbindkeys xwallpaper"
+  core_pack="${core_pack} bash-completion brightnessctl gnome-keyring neofetch opendoas pacman-contrib slock xautolock xbindkeys xwallpaper"
   # Mounting
   core_pack="${core_pack} ntfs-3g udiskie"
   # Networking
@@ -231,11 +231,6 @@ misc_fixes() {
   sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
-  # Fix thermald pre-defined profile errors
-  sudo mkdir /etc/systemd/system/thermald.service.d/
-  echo -e "[Service]\nStandardOutput=null" | sudo tee -a /etc/systemd/system/thermald.service.d/nostdout.conf > /dev/null
-  sudo chmod -R 644 /etc/systemd/system/thermald.service.d/
-
   # Fix tlp power parameters
   sudo sed -i "s/^#CPU_ENERGY_PERF_POLICY_ON_AC=.*/CPU_ENERGY_PERF_POLICY_ON_AC=performance/g" /etc/tlp.conf
   sudo sed -i "s/^#CPU_ENERGY_PERF_POLICY_ON_BAT=.*/CPU_ENERGY_PERF_POLICY_ON_BAT=power/g" /etc/tlp.conf
@@ -257,8 +252,9 @@ harden_parts() {
   sudo sed -i "s/^# End of file/* hard core 0/g" /etc/security/limits.conf
   echo -e "\n# End of file" | sudo tee -a  /etc/security/limits.conf > /dev/null
 
-  # Harden file permissions
+  # Harden file permissions (1/2)
   sudo sed -i "s/^umask 022/umask 077/g" /etc/profile
+  sudo sed -i "s/umask=022/umask=077/g" /etc/pam.d/doas
 
   # Harden modules
   # Kernel level
@@ -294,12 +290,12 @@ harden_parts() {
   sudo sed -i "s/^#AllowSuspendThenHibernate=yes/AllowSuspendThenHibernate=no/g" /etc/systemd/sleep.conf
   sudo sed -i "s/^#AllowHybridSleep=yes/AllowHybridSleep=no/g" /etc/systemd/sleep.conf
 
-  # Harden file permisssions
+  # Harden file permissions (2/2)
   sudo chmod -R 700 /etc/NetworkManager/ /etc/openvpn/ /usr/lib/NetworkManager/ /usr/lib/openvpn/
 
   # Harden mount options
   sudo sed -i "6 s/rw,relatime/defaults,noatime/g" /etc/fstab
-  sudo sed -i "9 s/rw,relatime/defaults,noatime,nosuid,nodev,noexec/g" /etc/fstab
+  sudo sed -i "9 s/rw,relatime,fmask=0022,dmask=0022/defaults,noatime,nosuid,nodev,noexec,fmask=0077,dmask=0077/g" /etc/fstab
   echo -e "\n/var /var ext4 defaults,bind,noatime,nosuid,nodev 0 0" | sudo tee -a  /etc/fstab > /dev/null
   echo "/home /home ext4 defaults,bind,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
   echo "tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null

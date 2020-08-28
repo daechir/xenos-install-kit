@@ -2,34 +2,24 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 08/14/20 <br/>
-Version: v2
+Modified Date: 08/27/20 <br/>
+Version: v2a
 
 
 ## Changelog
-+ v2
++ v2a
   * S1.sh
-    + Make xfs the default filesystem.
-    + Make systemd-boot the default bootloader.
-  * S2b.sh
     + Variables:
       * Add:
-        + cputhreads
-        + install_nvidia
-        + install_optimus
-      * Change:
-        + has_tpm to explicit.
-      * Remove
-        + has_rtl
-    + Enhance makepkg speed.
-    + Migrate from lxqt to a custom built DE.
-    + Integrate minimalistic software replacements for frequently used software (mpv replaces vlc for example).
-    + Make alsa the default audio handler.
-    + Remove RTL8821CE-dkms for upcoming rtw88 mainline driver.
-    + Simplify xenos-control-defaults.sh.
-    + Make tlp modifications global.
-    + Remove default editor variable from /etc/environment.
-    + Make doas the default privilege handler.
+        + kernel_type
+      * Remove:
+        + systemdboot_options
+          * mem_encrypt=off
+  * S2b.sh
+    + Replace xbacklight with brightnessctl.
+    + Remove thermald nostdout.conf drop-in.
+    + Restrict /etc/pam.d/doas umask permissions to 0700.
+    + Restrict /etc/fstab boot permissions to 0700.
 
 
 ## Purpose
