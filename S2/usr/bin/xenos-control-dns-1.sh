@@ -4,15 +4,17 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 07/30/20
-# Version: v1
+# Modified Date: 09/04/20
+# Version: v2
 
 
 # Variables
 # Fetch only the active networking device name (EG: enp$, wl$ and etc)
-active_device=$(ip -o link show | awk '{print $2,$9}' | grep "UP" | awk '{print $1}' | sed "s/://g")
+active_device=$(ip -o link show | awk '{print $2,$9}' | grep -i "up" | awk '{print $1}' | sed "s/://g")
 # Fetch only the active networking tunnel name(s)
-active_device_tunnel=$(ip -o link show | awk '{print $2}' | sed "s/://g" | grep "tun")
+active_device_tunnel=$(ip -o link show | awk '{print $2}' | sed "s/://g" | grep -i "tun")
+# Fetch only the active devices domain
+active_domain=$(resolvectl domain "${active_device}" | awk '{print $4}')
 
 
 force_settings(){
@@ -32,9 +34,11 @@ remove_domain(){
 }
 
 
-force_settings "$active_device"
-force_settings "$active_device_tunnel"
-remove_domain "$active_device"
-remove_domain "$active_device_tunnel"
-resolvectl domain "${active_device_tunnel}" "~."
+if [[ -n "${active_domain}" ]]; then
+  force_settings "$active_device"
+  force_settings "$active_device_tunnel"
+  remove_domain "$active_device"
+  remove_domain "$active_device_tunnel"
+  resolvectl domain "${active_device_tunnel}" "~."
+fi
 

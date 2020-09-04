@@ -2,24 +2,29 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 08/27/20 <br/>
-Version: v2a
+Modified Date: 09/04/20 <br/>
+Version: v2b
 
 
 ## Changelog
-+ v2a
++ v2b
   * S1.sh
-    + Variables:
-      * Add:
-        + kernel_type
-      * Remove:
-        + systemdboot_options
-          * mem_encrypt=off
+    + Cleanup a few redundancies.
   * S2b.sh
-    + Replace xbacklight with brightnessctl.
-    + Remove thermald nostdout.conf drop-in.
-    + Restrict /etc/pam.d/doas umask permissions to 0700.
-    + Restrict /etc/fstab boot permissions to 0700.
+    + Add new programs or utilities:
+      * Axel
+      * Powertop
+      * Youtube-dl
+    * Remove doublecmd-gtk2 and its dependencies.
+    * Replace the following programs:
+      * Transmission-gtk with Deluge-gtk
+    * Re-organize programs or utilities.
+    * Enhance all xenos-control-dns-*.sh scripts.
+    * Make all xenos-*.sh scripts immutable.
+    * Rename toggle_services() to toggle_systemctl().
+    * Simplify toggle_systemctl() disabling procedure.
+    * Add new ctls to the disabling procedure.
+    * Enhance battery life further by using powertop autotune.
 
 
 ## Purpose

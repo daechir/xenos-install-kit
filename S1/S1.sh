@@ -15,12 +15,12 @@ is_intel_cpu=$(lscpu | grep "Intel" &> /dev/null && echo "yes" || echo "")
 kernel_type="linux-hardened"
 core_pack="apparmor base base-devel dhcpcd git ${kernel_type} ${kernel_type}-headers linux-firmware lvm2 nano unzip xfsprogs"
 if [[ -n "${is_intel_cpu}" ]]; then
-  core_pack="${core_pack} intel-ucode"
-  systemdboot_entry="title Arch Linux\nlinux /vmlinuz-${kernel_type}\ninitrd /intel-ucode.img\ninitrd /initramfs-${kernel_type}.img\noptions"
+  cpu_type="intel"
 else
-  core_pack="${core_pack} amd-ucode"
-  systemdboot_entry="title Arch Linux\nlinux /vmlinuz-${kernel_type}\ninitrd /amd-ucode.img\ninitrd /initramfs-${kernel_type}.img\noptions"
+  cpu_type="amd"
 fi
+core_pack="${core_pack} ${cpu_type}-ucode"
+systemdboot_entry="title Arch Linux\nlinux /vmlinuz-${kernel_type}\ninitrd /${cpu_type}-ucode.img\ninitrd /initramfs-${kernel_type}.img\noptions"
 timezone="America/New_York"
 language="en_US.UTF-8"
 hostname=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 32 | head -n 1)

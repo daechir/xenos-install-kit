@@ -55,24 +55,23 @@ install_essentials() {
     sudo sed -i "s/^DRI=.*/DRI=3/g" /usr/share/optimus-manager.conf
   fi
 
-  # GUI Part 1
+  # GUI (1/2)
   # 2bwm utilizing Terminator as terminal
-  # Items listed above that aren't in core_pack here are found below due to make depends
   core_pack="${core_pack} terminator"
 
   ## Programs by category
   # Audio and video
   core_pack="${core_pack} alsa-utils mpv"
   # Archiver
-  core_pack="${core_pack} bzip2 gzip libunrar p7zip tar unrar xz zip"
+  core_pack="${core_pack} bzip2 gzip p7zip tar unrar xz zip"
   # Cleaner
   core_pack="${core_pack} bleachbit"
-  # File manager
-  core_pack="${core_pack} doublecmd-gtk2"
+  # Download utilities
+  core_pack="${core_pack} axel deluge-gtk youtube-dl"
   # Graphics
   core_pack="${core_pack} gimp inkscape qiv"
-  # Misc
-  core_pack="${core_pack} bash-completion brightnessctl gnome-keyring neofetch opendoas pacman-contrib slock xautolock xbindkeys xwallpaper"
+  # Misc utilities
+  core_pack="${core_pack} bash-completion brightnessctl neofetch pacman-contrib slock xautolock xbindkeys xwallpaper"
   # Mounting
   core_pack="${core_pack} ntfs-3g udiskie"
   # Networking
@@ -80,13 +79,13 @@ install_essentials() {
   # Office
   core_pack="${core_pack} howl libreoffice-fresh mupdf"
   # Security
-  core_pack="${core_pack} haveged pwgen rng-tools veracrypt"
+  core_pack="${core_pack} haveged opendoas pwgen rng-tools veracrypt"
+  # Soft dependencies not linked in core packages
+  core_pack="${core_pack} gnome-keyring gnome-themes-extra gtk-engine-murrine"
   # Themeing
-  core_pack="${core_pack} arc-gtk-theme gnome-themes-extra gtk-engine-murrine papirus-icon-theme ttf-roboto xcursor-vanilla-dmz"
+  core_pack="${core_pack} arc-gtk-theme papirus-icon-theme ttf-roboto xcursor-vanilla-dmz"
   # Thermal and power management
-  core_pack="${core_pack} ethtool thermald tlp tlp-rdw upower x86_energy_perf_policy"
-  # Torrent
-  core_pack="${core_pack} transmission-gtk"
+  core_pack="${core_pack} ethtool powertop thermald tlp tlp-rdw upower x86_energy_perf_policy"
   # TPM 2.0
   if [[ "${has_tpm}" == 2 ]]; then
     core_pack="${core_pack} ccid opensc tpm2-abrmd tpm2-pkcs11 tpm2-tools"
@@ -94,13 +93,14 @@ install_essentials() {
   # Web Browser
   core_pack="${core_pack} firefox"
 
+  ### Begin install
   # Force archlinux-keyring refresh
   sudo pacman -Sy --noconfirm archlinux-keyring
 
   # Install core_pack
   sudo pacman -S --noconfirm $core_pack
 
-  # GUI Part 2
+  # GUI (2/2)
   git clone https://aur.archlinux.org/2bwm-git.git
   cd 2bwm-git
   sed -i "22 a cp ../../2bwm-tweaks/config.h ../src/2bwm-git/" PKGBUILD
@@ -159,37 +159,57 @@ install_optionals() {
   sudo chmod +x /usr/bin/xenos-control-dns-2.sh
   sudo cp etc/systemd/system/xenos-control-dns-2.service /etc/systemd/system/
   sudo chmod 644 /etc/systemd/system/xenos-control-dns-2.service
+
+  # Setup xenos-* as immutable
+  sudo chattr -i /usr/bin/xenos-control-defaults.sh
+  sudo chattr -i /etc/NetworkManager/dispatcher.d/xenos-control-dns-0.sh
+  sudo chattr -i /usr/bin/xenos-control-dns-1.sh
+  sudo chattr -i /usr/bin/xenos-control-dns-2.sh
 }
 
 
-toggle_services() {
-  # Disable some unused services, sockets and targets
+toggle_systemctl() {
+  ### Disable some unused services, sockets and targets
+  ## Start with dhcpcd, which is removed later
   sudo systemctl stop dhcpcd.service 2> /dev/null
   sudo systemctl disable dhcpcd.service
 
-  # Systemd userdbd & homed
-  sudo systemctl stop systemd-userdbd.service 2> /dev/null
-  sudo systemctl disable systemd-userdbd.service
-  sudo systemctl mask systemd-userdbd.service
-  sudo systemctl stop systemd-userdbd.socket 2> /dev/null
-  sudo systemctl disable systemd-userdbd.socket
-  sudo systemctl mask systemd-userdbd.socket
-  sudo systemctl stop systemd-homed.service 2> /dev/null
-  sudo systemctl disable systemd-homed.service
-  sudo systemctl mask systemd-homed.service
+  local systemctl=(
+    "avahi-daemon.service"
+    "avahi-dnsconfd.service"
+    "systemd-coredump@.service"
+    "systemd-hibernate-resume@.service"
+    "systemd-hibernate.service"
+    "systemd-homed.service"
+    "systemd-hybrid-sleep.service"
+    "systemd-rfkill.service"
+    "systemd-suspend-then-hibernate.service"
+    "systemd-suspend.service"
+    "systemd-userdbd.service"
+    "systemd-coredump.socket"
+    "systemd-rfkill.socket"
+    "systemd-userdbd.socket"
+    "bluetooth.target"
+    "hibernate.target"
+    "hybrid-sleep.target"
+    "printer.target"
+    "remote-cryptsetup.target"
+    "remote-fs-pre.target"
+    "remote-fs.target"
+    "sleep.target"
+    "suspend-then-hibernate.target"
+    "suspend.target"
+  )
 
-  # Systemd rfkill
-  sudo systemctl mask systemd-rfkill.service
-  sudo systemctl mask systemd-rfkill.socket
+  for ctl in "${systemctl[@]}"
+  do
+    sudo systemctl stop "${ctl}" 2> /dev/null
+    sudo systemctl disable "${ctl}"
+    sudo systemctl mask "${ctl}"
+  done
 
-  # Systemd sleep
-  sudo systemctl mask suspend.target 2> /dev/null
-  sudo systemctl mask hibernate.target 2> /dev/null
-  sudo systemctl mask hybrid-sleep.target 2> /dev/null
-  sudo systemctl mask suspend-then-hibernate.target 2> /dev/null
-
-  # Enable all necessary services
-  # This consists of all services installed with core_pack from S1.sh and S2b.sh.
+  ### Enable all necessary services
+  ## This consists of all services installed with core_pack from S1.sh and S2b.sh.
   sudo systemctl enable apparmor.service
   sudo systemctl enable auditd.service
   sudo systemctl enable haveged.service
@@ -226,6 +246,9 @@ misc_fixes() {
 
   # Fix lm_sensors
   sudo sensors-detect --auto
+
+  # Fix powertop
+  sudo powertop --auto-tune
 
   # Fix systemd hanging issues with c2
   sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
@@ -325,7 +348,7 @@ exit_installer() {
 
 install_essentials
 install_optionals
-toggle_services
+toggle_systemctl
 misc_fixes
 harden_parts
 finalize_setup
