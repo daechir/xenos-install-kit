@@ -5,9 +5,10 @@ set -xe
 
 # Variables
 cputhreads=$(nproc)
-is_amd_gpu=$(lspci | grep -e VGA -e 3D | grep "AMD" 2> /dev/null || echo "")
-is_intel_gpu=$(lspci | grep -e VGA -e 3D | grep "Intel" 2> /dev/null || echo "")
-is_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep "NVIDIA" 2> /dev/null || echo "")
+is_intel_cpu=$(lscpu | grep -i "intel(r)" 2> /dev/null || echo "")
+is_amd_gpu=$(lspci | grep -e VGA -e 3D | grep -i "amd" 2> /dev/null || echo "")
+is_intel_gpu=$(lspci | grep -e VGA -e 3D | grep -i "intel" 2> /dev/null || echo "")
+is_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" 2> /dev/null || echo "")
 install_nvidia=""
 install_optimus="1"
 has_tpm=$(cat /sys/class/tpm/tpm0/tpm_version_major 2> /dev/null || echo "")
@@ -123,18 +124,14 @@ install_optionals() {
   makepkg -csi --noconfirm
   cd ..
 
-  # Setup NetworkManager settings
-  echo -e "[connection]\nconnection.llmnr=0\nconnection.mdns=0" | sudo tee -a  /etc/NetworkManager/conf.d/00_force_settings.conf > /dev/null
-  echo -e "[connection]\nconnection.llmnr=0\nconnection.mdns=0" | sudo tee -a  /usr/lib/NetworkManager/conf.d/00_force_settings.conf > /dev/null
-
-  # Setup nsswitch.conf
+  # Setup openvpn-update-systemd-resolved nsswitch.conf
   sudo sed -i "1,2!d" /etc/nsswitch.conf
   echo -e "\nhosts: files dns resolve myhostname\nhosts: files resolve dns myhostname\nhosts: files resolve myhostname" | sudo tee -a  /etc/nsswitch.conf > /dev/null
 
-  # Setup stub-resolv.conf symbolic link
+  # Setup openvpn-update-systemd-resolved stub-resolv.conf
   sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
-  # Setup Systemd resolved settings
+  # Setup openvpn-update-systemd-resolved resolved.conf
   sudo sed -i "1,12!d" /etc/systemd/resolved.conf
   echo -e "\n[Resolve]\n#DNS=\nFallbackDNS=\nDomains=\nDNSSEC=yes\nDNSOverTLS=no\nMulticastDNS=no\nLLMNR=no\nCache=yes\nDNSStubListener=yes\nReadEtcHosts=yes\nResolveUnicastSingleLabel=no" | sudo tee -a  /etc/systemd/resolved.conf > /dev/null
 
@@ -240,25 +237,32 @@ misc_fixes() {
   # Fix apparmor boot time hanging issue
   sudo sed -i "s/^#write-cache/write-cache/g" /etc/apparmor/parser.conf
 
-  # Fix CRDA region
-  echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
-  sudo sed -i "s/^#WIRELESS_REGDOM=\"${crda_region}\"/WIRELESS_REGDOM=\"${crda_region}\"/g" /etc/conf.d/wireless-regdom
-
   # Fix lm_sensors
   sudo sensors-detect --auto
 
-  # Fix powertop
-  sudo powertop --auto-tune
+  # Fix modprobe.d driver customizations
+  if [[ -n "${is_intel_cpu}" ]]; then
+    sudo cp etc/modules/01_iwlwifi.conf /etc/modprobe.d/
+  else
+    sudo cp etc/modules/01_snd_hda_intel.conf /etc/modprobe.d/
+  fi
 
   # Fix systemd hanging issues with c2
   sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
-  # Fix tlp power parameters
+  # Optimize powertop power saving defaults
+  sudo powertop --auto-tune
+
+  # Optimize tlp power saving defaults
   sudo sed -i "s/^#CPU_ENERGY_PERF_POLICY_ON_AC=.*/CPU_ENERGY_PERF_POLICY_ON_AC=performance/g" /etc/tlp.conf
   sudo sed -i "s/^#CPU_ENERGY_PERF_POLICY_ON_BAT=.*/CPU_ENERGY_PERF_POLICY_ON_BAT=power/g" /etc/tlp.conf
   sudo sed -i "s/^#SATA_LINKPWR_ON_AC=.*/SATA_LINKPWR_ON_AC=\"max_performance\"/g" /etc/tlp.conf
   sudo sed -i "s/^#SATA_LINKPWR_ON_BAT=.*/SATA_LINKPWR_ON_BAT=\"medium_power\"/g" /etc/tlp.conf
+
+  # Specify CRDA region
+  echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
+  sudo sed -i "s/^#WIRELESS_REGDOM=\"${crda_region}\"/WIRELESS_REGDOM=\"${crda_region}\"/g" /etc/conf.d/wireless-regdom
 }
 
 
@@ -279,26 +283,24 @@ harden_parts() {
   sudo sed -i "s/^umask 022/umask 077/g" /etc/profile
   sudo sed -i "s/umask=022/umask=077/g" /etc/pam.d/doas
 
-  # Harden modules
+  ## Harden modules
   # Kernel level
   sudo cp etc/modules/00_blacklisted.conf  /etc/modprobe.d/
-
-  if [[ -n "${is_amd_gpu}" ]]; then
-    echo -e "# Blacklist AMD Ryzen sp5100_tco watchdog\n# /lib/modules/\$/kernel/drivers/watchdog/\ninstall sp5100_tco /bin/true" | sudo tee -a  /etc/modprobe.d/01_amd_ryzen_sp5100_tco.conf > /dev/null
-    echo -e "# Make Realtek ALC236 the first audio card\noptions snd-hda-intel id=Generic_1 index=0\noptions snd-hda-intel id=Generic index=1" | sudo tee -a  /etc/modprobe.d/02_snd_hda_intel.conf > /dev/null
-  fi
-
   # Systemd level
   sudo cp etc/modules/00_whitelisted.conf /etc/modules-load.d/
 
-  # Harden password hashes
+  ## Harden pam.d
+  # Password hashing, make dictionary attacks harder
   sudo sed -i "4 s/pam_unix.so sha512 shadow nullok/pam_unix.so sha512 shadow nullok rounds=65536/g" /etc/pam.d/passwd
-
-  # Harden root account
+  # SU elevation, even though SU will be disabled by locking root lets restrict it anyways
   sudo sed -i "6 s/^#auth/auth/g" /etc/pam.d/su
   sudo sed -i "6 s/^#auth/auth/g" /etc/pam.d/su-l
-  sudo sed -i "3 s/pam_tally2.so        /pam_tally2.so deny=3 unlock_time=600 /g" /etc/pam.d/system-login
-  sudo sed -i "7 s/^$/auth optional pam_faildelay.so delay=5000000\n/g" /etc/pam.d/system-login
+  # Login limits
+  # 3 attempts within 5 minutes results in a 10 minute lockout
+  # Additionally add a 5 second delay between each login
+  echo -e "\ndeny = 3\nfail_interval = 300\nunlock_time = 600" | sudo tee -a  /etc/security/faillock.conf > /dev/null
+  sudo sed -i "5 a auth optional pam_faildelay.so delay=5000000" /etc/pam.d/system-login
+  # Lastly lock root account
   sudo passwd -l root
 
   # Harden securetty
@@ -327,11 +329,8 @@ harden_parts() {
   echo -e "[Service]\nSupplementaryGroups=proc" | sudo tee -a  /etc/systemd/system/systemd-logind.service.d/00_hide_pid.conf  > /dev/null
   sudo chmod -R 644 /etc/systemd/system/systemd-logind.service.d/
   echo "proc /proc proc noatime,nosuid,nodev,noexec,hidepid=2,gid=proc 0 0" | sudo tee -a  /etc/fstab > /dev/null
-}
 
-
-finalize_setup() {
-  # Configure doas
+  # Setup doas
   echo "permit :wheel" | sudo tee -a /etc/doas.conf > /dev/null
 
   # Remove unused packages
@@ -351,6 +350,5 @@ install_optionals
 toggle_systemctl
 misc_fixes
 harden_parts
-finalize_setup
 exit_installer
 

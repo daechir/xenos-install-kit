@@ -2,29 +2,27 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/04/20 <br/>
-Version: v2b
+Modified Date: 09/08/20 <br/>
+Version: v2c
 
 
 ## Changelog
-+ v2b
++ v2c
   * S1.sh
-    + Cleanup a few redundancies.
+    + Variables:
+      * Change:
+        + is_intel_cpu
   * S2b.sh
-    + Add new programs or utilities:
-      * Axel
-      * Powertop
-      * Youtube-dl
-    * Remove doublecmd-gtk2 and its dependencies.
-    * Replace the following programs:
-      * Transmission-gtk with Deluge-gtk
-    * Re-organize programs or utilities.
-    * Enhance all xenos-control-dns-*.sh scripts.
-    * Make all xenos-*.sh scripts immutable.
-    * Rename toggle_services() to toggle_systemctl().
-    * Simplify toggle_systemctl() disabling procedure.
-    * Add new ctls to the disabling procedure.
-    * Enhance battery life further by using powertop autotune.
+    + Variables:
+      * Add:
+        + is_intel_cpu
+      * Cleanup and enhance some comments.
+      * Remove 00_force_settings.conf.
+        + These settings appear to have no effect anymore.
+      * Enhance xenos-control-dns-0 and xenos-control-dns-1 (Again).
+      * Move modprobe.d driver customizations to their own files and to misc_fixes().
+      * Hotfix pam.d issues.
+      * Merge finalize_setup() into harden_parts().
 
 
 ## Purpose
