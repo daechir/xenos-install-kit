@@ -4,8 +4,8 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 09/08/20
-# Version: v2a
+# Modified Date: 09/09/20
+# Version: v2b
 
 
 # Variables
@@ -24,12 +24,15 @@ force_settings(){
   ip link set dev "${xenos_device}" allmulticast off
   ip link set dev "${xenos_device}" multicast off
 
-  if [[ "${xenos_device}" == wlo* ]]; then
-    nmcli connection mod "${xenos_connection}" 802-11-wireless.powersave 2
+  if [[ -n "${xenos_connection}" ]]; then
+    if [[ "${xenos_device}" == wlo* ]]; then
+      nmcli connection mod "${xenos_connection}" 802-11-wireless.powersave 2
+    fi
+
+    nmcli connection mod "${xenos_connection}" connection.llmnr 0
+    nmcli connection mod "${xenos_connection}" connection.mdns 0
   fi
 
-  nmcli connection mod "${xenos_connection}" connection.llmnr 0
-  nmcli connection mod "${xenos_connection}" connection.mdns 0
   resolvectl llmnr "${xenos_device}" 0
   resolvectl mdns "${xenos_device}" 0
 }
@@ -53,7 +56,7 @@ if [[ -n "${active_domain}" ]]; then
   esac
 
   force_settings "$active_device" "$active_connection_name"
-  force_settings "$active_device_tunnel" "$active_device_tunnel"
+  force_settings "$active_device_tunnel"
   remove_domain "$active_device"
   remove_domain "$active_device_tunnel"
   resolvectl domain "${active_device_tunnel}" "~."

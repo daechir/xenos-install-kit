@@ -2,27 +2,20 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/08/20 <br/>
-Version: v2c
+Modified Date: 09/09/20 <br/>
+Version: v2d
 
 
 ## Changelog
-+ v2c
-  * S1.sh
-    + Variables:
-      * Change:
-        + is_intel_cpu
++ v2d
+  * S*.sh
+    + Re-audit all S*.sh scripts to ensure they are all working as intended.
   * S2b.sh
-    + Variables:
-      * Add:
-        + is_intel_cpu
-      * Cleanup and enhance some comments.
-      * Remove 00_force_settings.conf.
-        + These settings appear to have no effect anymore.
-      * Enhance xenos-control-dns-0 and xenos-control-dns-1 (Again).
-      * Move modprobe.d driver customizations to their own files and to misc_fixes().
-      * Hotfix pam.d issues.
-      * Merge finalize_setup() into harden_parts().
+    + Add new programs or utilities:
+      * Man-db
+      * Man-pages
+    + Cleanup and enhance some comments (Again).
+    + Hotfix xenos-control-dns-1 issues.
 
 
 ## Purpose

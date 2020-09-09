@@ -5,13 +5,13 @@ set -xe
 
 # Variables
 cputhreads=$(nproc)
-is_intel_cpu=$(lscpu | grep -i "intel(r)" 2> /dev/null || echo "")
 is_amd_gpu=$(lspci | grep -e VGA -e 3D | grep -i "amd" 2> /dev/null || echo "")
 is_intel_gpu=$(lspci | grep -e VGA -e 3D | grep -i "intel" 2> /dev/null || echo "")
 is_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" 2> /dev/null || echo "")
 install_nvidia=""
 install_optimus="1"
 has_tpm=$(cat /sys/class/tpm/tpm0/tpm_version_major 2> /dev/null || echo "")
+is_intel_cpu=$(lscpu | grep -i "intel(r)" 2> /dev/null || echo "")
 crda_region="US"
 
 
@@ -72,7 +72,7 @@ install_essentials() {
   # Graphics
   core_pack="${core_pack} gimp inkscape qiv"
   # Misc utilities
-  core_pack="${core_pack} bash-completion brightnessctl neofetch pacman-contrib slock xautolock xbindkeys xwallpaper"
+  core_pack="${core_pack} bash-completion brightnessctl man-db man-pages neofetch pacman-contrib slock xautolock xbindkeys xwallpaper"
   # Mounting
   core_pack="${core_pack} ntfs-3g udiskie"
   # Networking
@@ -240,14 +240,14 @@ misc_fixes() {
   # Fix lm_sensors
   sudo sensors-detect --auto
 
-  # Fix modprobe.d driver customizations
+  # Fix modprobe.d drivers
   if [[ -n "${is_intel_cpu}" ]]; then
     sudo cp etc/modules/01_iwlwifi.conf /etc/modprobe.d/
   else
     sudo cp etc/modules/01_snd_hda_intel.conf /etc/modprobe.d/
   fi
 
-  # Fix systemd hanging issues with c2
+  # Fix systemd shutdown hanging issue
   sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
