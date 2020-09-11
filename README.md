@@ -2,20 +2,20 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/09/20 <br/>
-Version: v2d
+Modified Date: 09/10/20 <br/>
+Version: v2e
 
 
 ## Changelog
-+ v2d
-  * S*.sh
-    + Re-audit all S*.sh scripts to ensure they are all working as intended.
++ v2e
+  * S1.sh
+    + Variables:
+      * Add
+        + systemboot_options
+          * nowatchdog
   * S2b.sh
-    + Add new programs or utilities:
-      * Man-db
-      * Man-pages
-    + Cleanup and enhance some comments (Again).
-    + Hotfix xenos-control-dns-1 issues.
+    + Add --no-dbus flag to 2bwm config.h.
+    + Begin hardening systemd services in harden_parts().
 
 
 ## Purpose
@@ -89,4 +89,5 @@ And much much more.
   * https://theprivacyguide1.github.io/linux_hardening_guide.html
   * https://obscurix.github.io
   * https://github.com/Whonix/security-misc
+  * https://www.freedesktop.org/software/systemd/man/systemd.exec.html
 

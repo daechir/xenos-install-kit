@@ -183,6 +183,7 @@ toggle_systemctl() {
     "systemd-suspend-then-hibernate.service"
     "systemd-suspend.service"
     "systemd-userdbd.service"
+    "avahi-daemon.socket"
     "systemd-coredump.socket"
     "systemd-rfkill.socket"
     "systemd-userdbd.socket"
@@ -314,6 +315,9 @@ harden_parts() {
   sudo sed -i "s/^#AllowHibernation=yes/AllowHibernation=no/g" /etc/systemd/sleep.conf
   sudo sed -i "s/^#AllowSuspendThenHibernate=yes/AllowSuspendThenHibernate=no/g" /etc/systemd/sleep.conf
   sudo sed -i "s/^#AllowHybridSleep=yes/AllowHybridSleep=no/g" /etc/systemd/sleep.conf
+
+  # Harden Systemd services
+  sudo cp -R usr/lib/systemd/system/ /usr/lib/systemd/
 
   # Harden file permissions (2/2)
   sudo chmod -R 700 /etc/NetworkManager/ /etc/openvpn/ /usr/lib/NetworkManager/ /usr/lib/openvpn/

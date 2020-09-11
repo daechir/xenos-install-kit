@@ -5,8 +5,8 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 09/08/20
-# Version: v2a
+# Modified Date: 09/10/20
+# Version: v2b
 
 
 # Variables
@@ -18,7 +18,7 @@ ap_failure_3=$(journalctl | grep -i "ctrl-event-beacon-loss" | grep -i -v "execv
 
 if [[ $1 == wlo* || $1 == enp* || $1 == tun* ]]; then
   case $2 in
-    connectivity-change)
+    up)
       if [[ -n "${inactive_firewall}" || -n "${ap_failure_1}" || -n "${ap_failure_2}" || -n "${ap_failure_3}" ]]; then
         systemctl start xenos-control-dns-2.service
       fi
