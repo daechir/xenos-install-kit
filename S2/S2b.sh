@@ -201,7 +201,12 @@ toggle_systemctl() {
 
   for ctl in "${systemctl[@]}"
   do
-    sudo systemctl stop "${ctl}" 2> /dev/null
+    local ctlactive=$(systemctl status "${ctl}" | grep -i "active: active")
+
+    if [[ -n "${ctlactive}" ]]; then
+       sudo systemctl stop "${ctl}" 2> /dev/null
+    fi
+
     sudo systemctl disable "${ctl}"
     sudo systemctl mask "${ctl}"
   done

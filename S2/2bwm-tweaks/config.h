@@ -74,7 +74,7 @@ static const char *ignore_names[] = {"bar", "xclock"};
 /*
  * Programs
  */
-static const char *terminal[]  = { "terminator --no-dbus", NULL };
+static const char *terminal[]  = { "terminator", "--no-dbus", NULL };
 
 /*
  * Custom foo

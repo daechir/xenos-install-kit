@@ -2,20 +2,20 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/10/20 <br/>
-Version: v2e
+Modified Date: 09/11/20 <br/>
+Version: v2f
 
 
 ## Changelog
-+ v2e
-  * S1.sh
-    + Variables:
-      * Add
-        + systemboot_options
-          * nowatchdog
++ v2f
   * S2b.sh
-    + Add --no-dbus flag to 2bwm config.h.
-    + Begin hardening systemd services in harden_parts().
+    + Hotfix:
+      * 2bwm
+        + Fix terminator parameter syntax in config.h.
+      * toggle_systemctl()
+        + Static ctls break script execution.
+      * wpa_supplicant.service
+        + Omit ProtectKernelTunables sandboxing.
 
 
 ## Purpose
