@@ -3,19 +3,13 @@ Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
 Modified Date: 09/11/20 <br/>
-Version: v2f
+Version: v2g
 
 
 ## Changelog
-+ v2f
++ v2g
   * S2b.sh
-    + Hotfix:
-      * 2bwm
-        + Fix terminator parameter syntax in config.h.
-      * toggle_systemctl()
-        + Static ctls break script execution.
-      * wpa_supplicant.service
-        + Omit ProtectKernelTunables sandboxing.
+    + Harden more systemd services.
 
 
 ## Purpose

@@ -1,0 +1,33 @@
+[Unit]
+Description=Optimus Manager Commands Daemon
+Before=display-manager.service
+
+[Service]
+ExecStartPre=-/usr/bin/python3 -u -m optimus_manager.hooks.pre_daemon_start
+ExecStartPre=-/usr/bin/python3 -u -m optimus_manager.hooks.pre_xorg_start
+ExecStart=/usr/bin/python3 -u -m optimus_manager.daemon
+ExecStopPost=/usr/bin/python3 -u -m optimus_manager.hooks.post_daemon_stop
+
+CapabilityBoundingSet=
+DevicePolicy=closed
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=read-only
+ProtectHostname=yes
+ProtectKernelModules=yes
+#ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectSystem=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+
+[Install]
+WantedBy=graphical.target

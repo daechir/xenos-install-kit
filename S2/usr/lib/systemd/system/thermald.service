@@ -1,19 +1,15 @@
-#
-# Note that two different ALSA card state management schemes exist and they
-# can be switched using a file exist check - /etc/alsa/state-daemon.conf .
-#
-
 [Unit]
-Description=Manage Sound Card State (restore and store)
-ConditionPathExists=/etc/alsa/state-daemon.conf
+Description=Thermal Daemon Service
+ConditionVirtualization=no
 
 [Service]
-Type=simple
-ExecStart=-/usr/bin/alsactl -s -n 19 -c rdaemon
-ExecStop=-/usr/bin/alsactl -s kill save_and_quit
+Type=dbus
+SuccessExitStatus=1
+BusName=org.freedesktop.thermald
+ExecStart=/usr/bin/thermald --systemd --dbus-enable --adaptive
 
 CapabilityBoundingSet=
-DevicePolicy=strict
+DevicePolicy=closed
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
@@ -27,8 +23,13 @@ ProtectHostname=yes
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
 ProtectKernelLogs=yes
-ProtectSystem=strict
+ProtectSystem=full
 RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
+
+[Install]
+WantedBy=multi-user.target
+Alias=dbus-org.freedesktop.thermald.service
+
