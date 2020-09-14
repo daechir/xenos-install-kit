@@ -2,14 +2,20 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/11/20 <br/>
-Version: v2g
+Modified Date: 09/14/20 <br/>
+Version: v2h
 
 
 ## Changelog
-+ v2g
++ v2h
   * S2b.sh
-    + Harden more systemd services.
+    + Add new programs or utilities:
+      * Tree
+    + Further restrict console and tty access.
+    + Enhance .bash_history restrictions.
+    + Add .lesshst restrictions.
+    + Add LESSECURE env variable.
+    + Add sshd hardening.
 
 
 ## Purpose

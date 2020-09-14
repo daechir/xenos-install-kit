@@ -72,7 +72,7 @@ install_essentials() {
   # Graphics
   core_pack="${core_pack} gimp inkscape qiv"
   # Misc utilities
-  core_pack="${core_pack} bash-completion brightnessctl man-db man-pages neofetch pacman-contrib slock xautolock xbindkeys xwallpaper"
+  core_pack="${core_pack} bash-completion brightnessctl man-db man-pages neofetch pacman-contrib slock tree xautolock xbindkeys xwallpaper"
   # Mounting
   core_pack="${core_pack} ntfs-3g udiskie"
   # Networking
@@ -276,8 +276,9 @@ harden_parts() {
   # Harden auditd
   sudo cp etc/audit/audit.rules /etc/audit/
 
-  # Harden .bash_history
-  echo -e "\n# Disable .bash_history\nexport HISTSIZE=0" | sudo tee -a /etc/profile > /dev/null
+  # Harden consoles and ttys
+  echo -e "\n+:(wheel):LOCAL\n-:ALL:ALL" | sudo tee -a /etc/security/access.conf > /dev/null
+  sudo sed -i "1,2!d" /etc/securetty
 
   # Harden coredumps
   sudo sed -i "1,12!d" /etc/systemd/coredump.conf
@@ -288,6 +289,13 @@ harden_parts() {
   # Harden file permissions (1/2)
   sudo sed -i "s/^umask 022/umask 077/g" /etc/profile
   sudo sed -i "s/umask=022/umask=077/g" /etc/pam.d/doas
+
+  # Harden history file creation
+  echo -e "\n# Disable .bash_history\nHISTFILE=/dev/null\nHISTFILESIZE=0\nHISTSIZE=0\nexport HISTFILE HISTFILESIZE HISTSIZE" | sudo tee -a /etc/profile > /dev/null
+  echo -e "\n# Disable .lesshst\nLESSHISTFILE=/dev/null\nLESSHISTSIZE=0\nexport LESSHISTFILE LESSHISTSIZE" | sudo tee -a /etc/profile > /dev/null
+
+  # Harden less
+  echo -e "\n# Enable LESSSECURE mode\nexport LESSSECURE=1" | sudo tee -a /etc/profile > /dev/null
 
   ## Harden modules
   # Kernel level
@@ -309,8 +317,8 @@ harden_parts() {
   # Lastly lock root account
   sudo passwd -l root
 
-  # Harden securetty
-  sudo sed -i "1,2!d" /etc/securetty
+  # Harden sshd
+  sudo sed -i "s/^#PermitRootLogin.*/PermitRootLogin no/g"  /etc/ssh/sshd_config
 
   # Harden sysctl
   sudo cp etc/00_xenos_hardening.conf /etc/sysctl.d/
