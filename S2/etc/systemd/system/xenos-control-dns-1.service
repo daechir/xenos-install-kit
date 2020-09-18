@@ -1,9 +1,0 @@
-[Unit]
-Description=xenos-control-dns-1.sh
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/xenos-control-dns-1.sh
-
-[Install]
-WantedBy=multi-user.target
