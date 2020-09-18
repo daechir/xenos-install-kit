@@ -1,16 +1,16 @@
 [Unit]
-Description=Hardware RNG Entropy Gatherer Daemon
-DefaultDependencies=no
-Before=sysinit.target shutdown.target
+Description=Authorization Manager
+Documentation=man:polkit(8)
 
 [Service]
-EnvironmentFile=/etc/conf.d/rngd
-ExecStart=/usr/bin/rngd -f $RNGD_OPTS
+Type=dbus
+BusName=org.freedesktop.PolicyKit1
+ExecStart=/usr/lib/polkit-1/polkitd --no-debug
 
-CapabilityBoundingSet=CAP_SYS_ADMIN
+CapabilityBoundingSet=CAP_SETGID CAP_SETUID
 DevicePolicy=closed
 LockPersonality=yes
-MemoryDenyWriteExecute=yes
+#MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
 PrivateMounts=yes
@@ -22,13 +22,10 @@ ProtectControlGroups=yes
 ProtectHome=read-only
 ProtectHostname=yes
 ProtectKernelModules=yes
-#ProtectKernelTunables=yes
+ProtectKernelTunables=yes
 ProtectKernelLogs=yes
-ProtectSystem=full
+ProtectSystem=strict
 RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
-
-[Install]
-WantedBy=sysinit.target

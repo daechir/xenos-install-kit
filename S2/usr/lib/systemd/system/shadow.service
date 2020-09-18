@@ -1,13 +1,16 @@
 [Unit]
-Description=Hardware RNG Entropy Gatherer Daemon
-DefaultDependencies=no
-Before=sysinit.target shutdown.target
+Description=Verify integrity of password and group files
+After=systemd-sysusers.service
 
 [Service]
-EnvironmentFile=/etc/conf.d/rngd
-ExecStart=/usr/bin/rngd -f $RNGD_OPTS
+Type=simple
+# Always run both checks, but fail the service if either fails
+ExecStart=/bin/sh -c '/usr/bin/pwck -r || r=1; /usr/bin/grpck -r && exit $r'
+Nice=19
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
 
-CapabilityBoundingSet=CAP_SYS_ADMIN
+CapabilityBoundingSet=CAP_SYS_NICE
 DevicePolicy=closed
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
@@ -16,19 +19,16 @@ PrivateDevices=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 PrivateTmp=yes
-#PrivateUsers=yes
+PrivateUsers=yes
 ProtectClock=yes
 ProtectControlGroups=yes
 ProtectHome=read-only
 ProtectHostname=yes
 ProtectKernelModules=yes
-#ProtectKernelTunables=yes
+ProtectKernelTunables=yes
 ProtectKernelLogs=yes
-ProtectSystem=full
+ProtectSystem=strict
 RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
-
-[Install]
-WantedBy=sysinit.target

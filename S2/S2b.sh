@@ -146,22 +146,12 @@ install_optionals() {
   sudo chmod 644 /etc/systemd/system/xenos-control-defaults.service
 
   # Setup xenos-control-dns
-  sudo cp etc/NetworkManager/dispatcher.d/xenos-control-dns-0.sh /etc/NetworkManager/dispatcher.d/
-  sudo chmod +x /etc/NetworkManager/dispatcher.d/xenos-control-dns-0.sh
-  sudo cp usr/bin/xenos-control-dns-1.sh /usr/bin/
-  sudo chmod +x /usr/bin/xenos-control-dns-1.sh
-  sudo cp etc/systemd/system/xenos-control-dns-1.service /etc/systemd/system/
-  sudo chmod 644 /etc/systemd/system/xenos-control-dns-1.service
-  sudo cp usr/bin/xenos-control-dns-2.sh /usr/bin/
-  sudo chmod +x /usr/bin/xenos-control-dns-2.sh
-  sudo cp etc/systemd/system/xenos-control-dns-2.service /etc/systemd/system/
-  sudo chmod 644 /etc/systemd/system/xenos-control-dns-2.service
+  sudo cp usr/bin/xenos-control-dns.sh /usr/bin/
+  sudo chmod +x /usr/bin/xenos-control-dns.sh
 
-  # Setup xenos-* as immutable
+  # Setup xenos-control-* as immutable
   sudo chattr -i /usr/bin/xenos-control-defaults.sh
-  sudo chattr -i /etc/NetworkManager/dispatcher.d/xenos-control-dns-0.sh
-  sudo chattr -i /usr/bin/xenos-control-dns-1.sh
-  sudo chattr -i /usr/bin/xenos-control-dns-2.sh
+  sudo chattr -i /usr/bin/xenos-control-dns.sh
 }
 
 

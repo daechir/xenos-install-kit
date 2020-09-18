@@ -2,20 +2,16 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/14/20 <br/>
-Version: v2h
+Modified Date: 09/17/20 <br/>
+Version: v2i
 
 
 ## Changelog
-+ v2h
++ v2i
   * S2b.sh
-    + Add new programs or utilities:
-      * Tree
-    + Further restrict console and tty access.
-    + Enhance .bash_history restrictions.
-    + Add .lesshst restrictions.
-    + Add LESSECURE env variable.
-    + Add sshd hardening.
+    + Merge all xenos-control-dns-*.sh into its own independent script.
+    + Enhance all systemd services.
+    + Harden more systemd services.
 
 
 ## Purpose
