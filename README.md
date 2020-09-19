@@ -2,16 +2,15 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/17/20 <br/>
-Version: v2i
+Modified Date: 09/19/20 <br/>
+Version: v2j
 
 
 ## Changelog
-+ v2i
++ v2j
   * S2b.sh
-    + Merge all xenos-control-dns-*.sh into its own independent script.
-    + Enhance all systemd services.
-    + Harden more systemd services.
+    + Enhance xenos-control-defaults.sh
+    + Enhance xenos-control-dns.sh
 
 
 ## Purpose

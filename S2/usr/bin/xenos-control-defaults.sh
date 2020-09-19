@@ -1,40 +1,61 @@
 #!/bin/bash
-# This script serves to control several annoyances that are re-occuring after updates.
+# This script serves to control several annoyances that are shipped preconfigured in Arch Linux.
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 07/30/20
-# Version: v1
+# Modified Date: 09/19/20
+# Version: v1a
 
 
 # Variables
-nmfile="/usr/lib/NetworkManager/conf.d/20-connectivity.conf"
+nmfiles1=/etc/NetworkManager/conf.d/
+nmfiles2=/usr/lib/NetworkManager/conf.d/
 mimefiles1=/usr/share/applications/*
 mimefiles2=/usr/lib/libreoffice/share/xdg/*
+sysctlfiles1=/usr/lib/sysctl.d/
 
 
-control_defaults() {
-  if [[ -f "${nmfile}" ]]; then
-    rm -f "${nmfile}"
-  fi
+control_networkmanager() {
+  rm -rf "${nmfiles1}"
+  mkdir "${nmfiles1}"
+
+  rm -rf "${nmfiles2}"
+  mkdir "${nmfiles2}"
+}
+
+
+control_mimes() {
+  local mimefilesgrep="reset"
 
   for mime in $mimefiles1
   do
-    local mimefiles1grep=$(grep -i "MimeType" "${mime}")
+    mimefilesgrep=$(grep -i "MimeType" "${mime}")
 
-    if [[ -n "${mimefiles1grep}" ]]; then
+    if [[ -n "${mimefilesgrep}" ]]; then
       sed -i "s/^MimeType=.*/MimeType=/g" "${mime}"
     fi
   done
 
   for mime in $mimefiles2
   do
-    sed -i "s/^MimeType=.*/MimeType=/g" "${mime}"
+    mimefilesgrep=$(grep -i "MimeType" "${mime}")
+
+    if [[ -n "${mimefilesgrep}" ]]; then
+      sed -i "s/^MimeType=.*/MimeType=/g" "${mime}"
+    fi
   done
 
   update-desktop-database
 }
 
 
-control_defaults
+control_sysctl() {
+  rm -rf "${sysctlfiles1}"
+  mkdir "${sysctlfiles1}"
+}
+
+
+control_networkmanager
+control_mimes
+control_sysctl
 

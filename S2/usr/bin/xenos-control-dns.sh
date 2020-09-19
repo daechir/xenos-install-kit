@@ -3,13 +3,17 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 09/17/20
-# Version: v1
+# Modified Date: 09/19/20
+# Version: v1a
 
 
 ## Variables (1/2)
 # Handlers
-active_time=0
+activated_time=$(date +"%I:%M")
+adjusted_time=$(date --date="-59 minutes ago" +"%I:%M")
+
+
+echo "Notice: The current lease of the openvpn connection begins at ${activated_time} and expires at ${adjusted_time}."
 
 
 while :
@@ -33,6 +37,7 @@ do
 
   active_tunnel=$(ip -o link show | awk '{print $2}' | sed "s/://g" | grep -i "tun")
   connection_state="reset"
+  current_time=$(date +"%I:%M")
   # Security cases
   inactive_firewall=$(systemctl status iptables | grep -i "inactive")
   ap_failure_1=$(journalctl | grep -i "failed to initiate ap scan" | grep -i -v "execve")
@@ -95,7 +100,7 @@ do
   fi
 
   # If the current lease of the openvpn connection is about to expire then set connection_state=1
-  if [[ "${active_time}" == 3540 ]]; then
+  if [[ "${current_time}" == "${adjusted_time}" ]]; then
     connection_message="The current lease of the openvpn connection is about to expire."
     connection_state=1
   fi
@@ -129,9 +134,6 @@ do
       break
       ;;
   esac
-
-  # Increase active_time counter
-  ((++active_time))
 
   # Pause for a second before restarting
   sleep 1
