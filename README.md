@@ -2,14 +2,14 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/19/20 <br/>
-Version: v2j
+Modified Date: 09/30/20 <br/>
+Version: v2k
 
 
 ## Changelog
-+ v2j
++ v2k
   * S2b.sh
-    + Enhance xenos-control-defaults.sh
+    + Enhance xenos-control-defaults*
     + Enhance xenos-control-dns.sh
 
 

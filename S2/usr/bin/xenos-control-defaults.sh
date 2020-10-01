@@ -3,28 +3,31 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 09/19/20
-# Version: v1a
+# Modified Date: 09/30/20
+# Version: v1b
 
 
 # Variables
-nmfiles1=/etc/NetworkManager/conf.d/
-nmfiles2=/usr/lib/NetworkManager/conf.d/
+folders=(
+  "/etc/NetworkManager/conf.d/"
+  "/usr/lib/NetworkManager/conf.d/"
+  "/usr/lib/sysctl.d/"
+)
 mimefiles1=/usr/share/applications/*
 mimefiles2=/usr/lib/libreoffice/share/xdg/*
-sysctlfiles1=/usr/lib/sysctl.d/
 
 
-control_networkmanager() {
-  rm -rf "${nmfiles1}"
-  mkdir "${nmfiles1}"
+control_folders(){
+  for folder in "${folders[@]}"
+  do
+    rm -rf "${folder}"
+    mkdir "${folder}"
+  done
 
-  rm -rf "${nmfiles2}"
-  mkdir "${nmfiles2}"
+  return 0
 }
 
-
-control_mimes() {
+control_mimes(){
   local mimefilesgrep="reset"
 
   for mime in $mimefiles1
@@ -46,16 +49,13 @@ control_mimes() {
   done
 
   update-desktop-database
+
+  return 0
 }
 
 
-control_sysctl() {
-  rm -rf "${sysctlfiles1}"
-  mkdir "${sysctlfiles1}"
-}
-
-
-control_networkmanager
+control_folders
 control_mimes
-control_sysctl
+
+exit 0
 
