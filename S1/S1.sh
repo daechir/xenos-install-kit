@@ -59,6 +59,7 @@ systemdboot_options="${systemdboot_options} module.sig_enforce=1"
 # Custom additions
 systemdboot_options="${systemdboot_options} extra_latent_entropy"
 systemdboot_options="${systemdboot_options} oops=panic"
+systemdboot_options="${systemdboot_options} debugfs=off"
 systemdboot_options="${systemdboot_options} nowatchdog"
 systemdboot_options="${systemdboot_options} ipv6.disable=1"
 systemdboot_options="${systemdboot_options} cryptdevice=/dev/${volume}/root:root:allow-discards root=/dev/mapper/root"

@@ -2,15 +2,20 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 09/30/20 <br/>
-Version: v2k
+Modified Date: 10/04/20 <br/>
+Version: v2l
 
 
 ## Changelog
-+ v2k
++ v2l
+  * S1.sh
+    + Variables:
+      * Add
+        + systemboot_options
+          * debugfs
   * S2b.sh
-    + Enhance xenos-control-defaults*
-    + Enhance xenos-control-dns.sh
+    + Add a few more modules.
+    + Add a few more kernel parameters.
 
 
 ## Purpose
