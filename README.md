@@ -3,19 +3,17 @@ Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
 Modified Date: 10/04/20 <br/>
-Version: v2l
+Version: v2m
 
 
 ## Changelog
-+ v2l
-  * S1.sh
-    + Variables:
-      * Add
-        + systemboot_options
-          * debugfs
++ v2m
   * S2b.sh
-    + Add a few more modules.
-    + Add a few more kernel parameters.
+    + Review all modules.
+    + Reorganize all modules alphabetically first by folder name and second by name.
+    + Add a few more modules:
+      * All watchdog drivers.
+      * A missing thunderbolt driver.
 
 
 ## Purpose
