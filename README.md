@@ -3,13 +3,14 @@ Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
 Modified Date: 10/05/20 <br/>
-Version: v2n
+Version: v2o
 
 
 ## Changelog
-+ v2n
++ v2o
   * S2b.sh
-    + Harden a few more services.
+    + Add another systemd coredump toggle.
+    + Hotfix iptables.service.
 
 
 ## Purpose

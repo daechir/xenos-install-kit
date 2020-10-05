@@ -273,6 +273,7 @@ harden_parts() {
   # Harden coredumps
   sudo sed -i "1,12!d" /etc/systemd/coredump.conf
   echo -e "\n[Coredump]\nStorage=none\nProcessSizeMax=0" | sudo tee -a  /etc/systemd/coredump.conf > /dev/null
+  sudo sed -i "s/^#DumpCore=yes/DumpCore=no/g" /etc/systemd/system.conf
   sudo sed -i "s/^# End of file/* hard core 0/g" /etc/security/limits.conf
   echo -e "\n# End of file" | sudo tee -a  /etc/security/limits.conf > /dev/null
 
