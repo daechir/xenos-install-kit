@@ -2,18 +2,14 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/04/20 <br/>
-Version: v2m
+Modified Date: 10/05/20 <br/>
+Version: v2n
 
 
 ## Changelog
-+ v2m
++ v2n
   * S2b.sh
-    + Review all modules.
-    + Reorganize all modules alphabetically first by folder name and second by name.
-    + Add a few more modules:
-      * All watchdog drivers.
-      * A missing thunderbolt driver.
+    + Harden a few more services.
 
 
 ## Purpose
