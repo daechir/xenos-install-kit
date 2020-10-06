@@ -2,15 +2,16 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/05/20 <br/>
-Version: v2o
+Modified Date: 10/06/20 <br/>
+Version: v2p
 
 
 ## Changelog
-+ v2o
++ v2p
   * S2b.sh
-    + Add another systemd coredump toggle.
-    + Hotfix iptables.service.
+    + Add new programs or utilities:
+      * Rsync
+    + Add at-spi* or accessibility hardening.
 
 
 ## Purpose
@@ -74,12 +75,13 @@ And much much more.
 + misc_fixes()
   * https://www.freedesktop.org/software/systemd/man/journald.conf
   * https://wiki.archlinux.org/index.php/Apparmor
-  * https://wiki.archlinux.org/index.php/Iw
   * https://wiki.archlinux.org/index.php/Lm_sensors
   * https://www.freedesktop.org/software/systemd/man/user.conf.d.html
   * https://wiki.archlinux.org/index.php/Tlp
+  * https://wiki.archlinux.org/index.php/Iw
 + harden_parts()
   * https://github.com/Neo23x0/auditd/blob/master/audit.rules
+  * https://wiki.gnome.org/Accessibility/Documentation/GNOME2/Mechanics
   * https://wiki.archlinux.org/index.php/Security
   * https://theprivacyguide1.github.io/linux_hardening_guide.html
   * https://obscurix.github.io

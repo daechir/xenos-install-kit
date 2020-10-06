@@ -72,7 +72,7 @@ install_essentials() {
   # Graphics
   core_pack="${core_pack} gimp inkscape qiv"
   # Misc utilities
-  core_pack="${core_pack} bash-completion brightnessctl man-db man-pages neofetch pacman-contrib slock tree xautolock xbindkeys xwallpaper"
+  core_pack="${core_pack} bash-completion brightnessctl man-db man-pages neofetch pacman-contrib rsync slock tree xautolock xbindkeys xwallpaper"
   # Mounting
   core_pack="${core_pack} ntfs-3g udiskie"
   # Networking
@@ -141,17 +141,16 @@ install_optionals() {
 
   # Setup xenos-control-defaults
   sudo cp usr/bin/xenos-control-defaults.sh /usr/bin/
-  sudo chmod +x /usr/bin/xenos-control-defaults.sh
+  sudo chmod 700 /usr/bin/xenos-control-defaults.sh
   sudo cp etc/systemd/system/xenos-control-defaults.service /etc/systemd/system/
   sudo chmod 644 /etc/systemd/system/xenos-control-defaults.service
 
   # Setup xenos-control-dns
   sudo cp usr/bin/xenos-control-dns.sh /usr/bin/
-  sudo chmod +x /usr/bin/xenos-control-dns.sh
+  sudo chmod 700 /usr/bin/xenos-control-dns.sh
 
   # Setup xenos-control-* as immutable
-  sudo chattr -i /usr/bin/xenos-control-defaults.sh
-  sudo chattr -i /usr/bin/xenos-control-dns.sh
+  sudo chattr +i /usr/bin/xenos-control-defaults.sh /usr/bin/xenos-control-dns.sh
 }
 
 
@@ -265,6 +264,12 @@ misc_fixes() {
 harden_parts() {
   # Harden auditd
   sudo cp etc/audit/audit.rules /etc/audit/
+
+  # Harden at-spi* or accessibility
+  echo -e "\n# Disable at-spi* or accessibility\nNO_GAIL=1\nNO_AT_BRIDGE=1\nexport NO_GAIL NO_AT_BRIDGE" | sudo tee -a /etc/profile > /dev/null
+  sudo sed -i "d" /usr/share/dbus-1/services/org.a11y.Bus.service
+  sudo chmod 600 /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
+  sudo chattr +i /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
 
   # Harden consoles and ttys
   echo -e "\n+:(wheel):LOCAL\n-:ALL:ALL" | sudo tee -a /etc/security/access.conf > /dev/null
