@@ -2,16 +2,19 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/06/20 <br/>
-Version: v2p
+Modified Date: 10/09/20 <br/>
+Version: v2q
 
 
 ## Changelog
-+ v2p
++ v2q
   * S2b.sh
-    + Add new programs or utilities:
-      * Rsync
-    + Add at-spi* or accessibility hardening.
+    + Enhance mkinitcpio speed.
+    + Add new ctls to the disabling procedure.
+    + Hotfix apparmor.service caching.
+    + Harden a few more services.
+    + Update and fix audit rules.
+    + Add a few more at-spi* or accessibility restrictions.
 
 
 ## Purpose
@@ -60,6 +63,7 @@ And much much more.
 #### S2b .sh
 + install_essentials()
   * https://wiki.archlinux.org/index.php/Makepkg
+  * https://wiki.archlinux.org/index.php/Mkinitcpio
   * https://wiki.archlinux.org/index.php/Xorg
   * https://github.com/Askannz/optimus-manager
   * https://github.com/Askannz/optimus-manager/wiki/A-guide--to-power-management-options

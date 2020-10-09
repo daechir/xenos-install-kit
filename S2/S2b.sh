@@ -16,10 +16,12 @@ crda_region="US"
 
 
 install_essentials() {
-  # Before proceeding enhance makepkg
+  # Before proceeding enhance makepkg and mkinitcpio
   sudo sed -i "s/^#MAKEFLAGS=.*/MAKEFLAGS=\"-j${cputhreads}\"/g" /etc/makepkg.conf
   sudo sed -i "s/^COMPRESSXZ=.*/COMPRESSXZ=(xz -c -z - --threads=${cputhreads})/g" /etc/makepkg.conf
   sudo sed -i "s/^COMPRESSZST=.*/COMPRESSZST=(zstd -c -z -q - --threads=${cputhreads})/g" /etc/makepkg.conf
+  sudo sed -i "s/^#COMPRESSION=\"xz\"/COMPRESSION=\"xz\"/g" /etc/mkinitcpio.conf
+  sudo sed -i "s/^#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-c -z - --threads=${cputhreads})/g" /etc/mkinitcpio.conf
 
   ### Begin core_pack generation
   ## Boilerplate
@@ -163,6 +165,8 @@ toggle_systemctl() {
   local systemctl=(
     "avahi-daemon.service"
     "avahi-dnsconfd.service"
+    "emergency.service"
+    "rescue.service"
     "systemd-coredump@.service"
     "systemd-hibernate-resume@.service"
     "systemd-hibernate.service"
@@ -177,12 +181,14 @@ toggle_systemctl() {
     "systemd-rfkill.socket"
     "systemd-userdbd.socket"
     "bluetooth.target"
+    "emergency.target"
     "hibernate.target"
     "hybrid-sleep.target"
     "printer.target"
     "remote-cryptsetup.target"
     "remote-fs-pre.target"
     "remote-fs.target"
+    "rescue.target"
     "sleep.target"
     "suspend-then-hibernate.target"
     "suspend.target"
@@ -267,9 +273,10 @@ harden_parts() {
 
   # Harden at-spi* or accessibility
   echo -e "\n# Disable at-spi* or accessibility\nNO_GAIL=1\nNO_AT_BRIDGE=1\nexport NO_GAIL NO_AT_BRIDGE" | sudo tee -a /etc/profile > /dev/null
+  sudo sed -i "d" /etc/xdg/autostart/at-spi-dbus-bus.desktop
   sudo sed -i "d" /usr/share/dbus-1/services/org.a11y.Bus.service
   sudo chmod 600 /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
-  sudo chattr +i /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
+  sudo chattr +i /etc/xdg/autostart/at-spi-dbus-bus.desktop /usr/share/dbus-1/services/org.a11y.Bus.service /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
 
   # Harden consoles and ttys
   echo -e "\n+:(wheel):LOCAL\n-:ALL:ALL" | sudo tee -a /etc/security/access.conf > /dev/null

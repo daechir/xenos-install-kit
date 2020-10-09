@@ -1,0 +1,38 @@
+[Unit]
+Description=Device-mapper event daemon
+Documentation=man:dmeventd(8)
+Requires=dm-event.socket
+After=dm-event.socket
+Before=local-fs-pre.target shutdown.target
+Conflicts=shutdown.target
+DefaultDependencies=no
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/dmeventd -f
+Environment=SD_ACTIVATION=1
+PIDFile=/run/dmeventd.pid
+OOMScoreAdjust=-1000
+
+CapabilityBoundingSet=
+DevicePolicy=closed
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateMounts=yes
+PrivateNetwork=yes
+#PrivateTmp=yes
+PrivateUsers=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=read-only
+ProtectHostname=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+#ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
