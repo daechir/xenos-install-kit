@@ -333,6 +333,7 @@ harden_parts() {
   sudo sed -i "s/^#AllowHybridSleep=yes/AllowHybridSleep=no/g" /etc/systemd/sleep.conf
 
   # Harden Systemd services
+  sudo sed -i "s/^#SystemCallArchitectures=/SystemCallArchitectures=native/g" /etc/systemd/system.conf
   sudo cp -R usr/lib/systemd/system/ /usr/lib/systemd/
 
   # Harden file permissions (2/2)

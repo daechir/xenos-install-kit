@@ -2,19 +2,15 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/09/20 <br/>
-Version: v2q
+Modified Date: 10/10/20 <br/>
+Version: v2r
 
 
 ## Changelog
-+ v2q
++ v2r
   * S2b.sh
-    + Enhance mkinitcpio speed.
-    + Add new ctls to the disabling procedure.
-    + Hotfix apparmor.service caching.
-    + Harden a few more services.
-    + Update and fix audit rules.
-    + Add a few more at-spi* or accessibility restrictions.
+    + Add global SystemCallArchitectures=native parameter.
+    + Additionally add SystemCallArchitectures=native to each hardened service.
 
 
 ## Purpose

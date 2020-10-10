@@ -29,3 +29,4 @@ RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
+SystemCallArchitectures=native
