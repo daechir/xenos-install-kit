@@ -48,6 +48,8 @@ install_essentials() {
     cd ..
 
     sudo sed -i "s/^pci_power_control=.*/pci_power_control=yes/g" /usr/share/optimus-manager.conf
+    sudo sed -i "s/^pci_remove=.*/pci_remove=yes/g" /usr/share/optimus-manager.conf
+    sudo sed -i "s/^pci_reset=.*/pci_reset=hot_reset/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^auto_logout=.*/auto_logout=no/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^startup_mode=.*/startup_mode=intel/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^startup_auto_battery_mode=.*/startup_auto_battery_mode=intel/g" /usr/share/optimus-manager.conf
@@ -162,7 +164,7 @@ toggle_systemctl() {
   sudo systemctl stop dhcpcd.service 2> /dev/null
   sudo systemctl disable dhcpcd.service
 
-  local systemctl=(
+  local disablectl=(
     "avahi-daemon.service"
     "avahi-dnsconfd.service"
     "emergency.service"
@@ -194,40 +196,51 @@ toggle_systemctl() {
     "suspend.target"
   )
 
-  for ctl in "${systemctl[@]}"
+  for ctl in "${disablectl[@]}"
   do
     local ctlactive=$(systemctl status "${ctl}" | grep -i "active: active")
+    local ctlexist=$(ls -la /usr/lib/systemd/system | grep -i "${ctl}")
 
     if [[ -n "${ctlactive}" ]]; then
-       sudo systemctl stop "${ctl}" 2> /dev/null
+      sudo systemctl stop "${ctl}" 2> /dev/null
     fi
 
-    sudo systemctl disable "${ctl}"
+    if [[ -n "${ctlexist}" ]]; then
+      sudo systemctl disable "${ctl}"
+    fi
+
     sudo systemctl mask "${ctl}"
   done
 
   ### Enable all necessary services
   ## This consists of all services installed with core_pack from S1.sh and S2b.sh.
-  sudo systemctl enable apparmor.service
-  sudo systemctl enable auditd.service
-  sudo systemctl enable haveged.service
-  sudo systemctl enable NetworkManager.service
+  local enablectl=(
+    "apparmor.service"
+    "auditd.service"
+    "haveged.service"
+    "NetworkManager.service"
+    "rngd.service"
+    "systemd-resolved.service"
+    "thermald.service"
+    "tlp.service"
+    "upower.service"
+    "xenos-control-defaults.service"
+  )
 
   if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
-    sudo systemctl enable optimus-manager.service
+    enablectl=("${enablectl[@]}" "optimus-manager.service")
   fi
 
   if [[ "${has_tpm}" == 2 ]]; then
-    sudo systemctl enable tpm2-abrmd.service
-    sudo systemctl enable pcscd.service
+    enablectl=("${enablectl[@]}" "tpm2-abrmd.service" "pcscd.service")
   fi
 
-  sudo systemctl enable rngd.service
-  sudo systemctl enable systemd-resolved.service
-  sudo systemctl enable thermald.service
-  sudo systemctl enable tlp.service
-  sudo systemctl enable upower.service
-  sudo systemctl enable xenos-control-defaults.service
+  enablectl=$(for ctl in "${enablectl[@]}"; do echo "${ctl}"; done | sort)
+
+  for ctl in "${enablectl[@]}"
+  do
+    sudo systemctl enable "${ctl}"
+  done
 }
 
 
@@ -244,6 +257,7 @@ misc_fixes() {
   # Fix modprobe.d drivers
   if [[ -n "${is_intel_cpu}" ]]; then
     sudo cp etc/modules/01_iwlwifi.conf /etc/modprobe.d/
+    sudo cp etc/modules/02_i915.conf /etc/modprobe.d/
   else
     sudo cp etc/modules/01_snd_hda_intel.conf /etc/modprobe.d/
   fi
@@ -251,9 +265,6 @@ misc_fixes() {
   # Fix systemd shutdown hanging issue
   sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
-
-  # Optimize powertop power saving defaults
-  sudo powertop --auto-tune
 
   # Optimize tlp power saving defaults
   sudo sed -i "s/^#CPU_ENERGY_PERF_POLICY_ON_AC=.*/CPU_ENERGY_PERF_POLICY_ON_AC=performance/g" /etc/tlp.conf
@@ -362,7 +373,7 @@ harden_parts() {
 exit_installer() {
   # Prompt for shutdown
   read -p "Xenos post install complete. Press [Enter] key to shutdown..."
-  doas shutdown now
+  systemctl poweroff
 }
 
 

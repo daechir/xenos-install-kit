@@ -41,7 +41,7 @@ systemdboot_options="${systemdboot_options} kvm.nx_huge_pages=force"
 systemdboot_options="${systemdboot_options} random.trust_cpu=off"
 # DMA hardening and misc fixes
 if [[ -n "${is_intel_cpu}" ]]; then
-  systemdboot_options="${systemdboot_options} intel_iommu=on modprobe.blacklist=nouveau pci=noaer"
+  systemdboot_options="${systemdboot_options} intel_iommu=on intel_pstate=hwp_only modprobe.blacklist=nouveau pci=noaer"
 else
   systemdboot_options="${systemdboot_options} amd_iommu=on acpi_backlight=vendor"
 fi
@@ -169,7 +169,7 @@ arch-chroot /mnt /bin/bash <<EOF
 
   # Configure systemd-boot
   bootctl install
-  sed -i d /boot/loader/loader.conf
+  sed -i "d" /boot/loader/loader.conf
   echo -e "default arch\ntimeout 0\neditor 0" > /boot/loader/loader.conf
   echo -e "${systemdboot_entry}" > /boot/loader/entries/arch.conf
 
@@ -185,7 +185,7 @@ exit_installer() {
 
   # Prompt for shutdown
   read -p "Xenos base install complete. Press [Enter] key to shutdown..."
-  shutdown now
+  systemctl poweroff
 }
 
 

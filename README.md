@@ -2,15 +2,23 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/10/20 <br/>
-Version: v2r
+Modified Date: 10/11/20 <br/>
+Version: v2s
 
 
 ## Changelog
-+ v2r
++ v2s
+  * S1.sh
+    + Variables:
+      * Add
+        + systemboot_options
+          * intel_pstate
   * S2b.sh
-    + Add global SystemCallArchitectures=native parameter.
-    + Additionally add SystemCallArchitectures=native to each hardened service.
+    + Enhance toggle_systemctl().
+    + Add i915 optimizations.
+    + Remove powertop command.
+  * S1.sh & S2b.sh
+    + Replace shutdown now with systemctl poweroff.
 
 
 ## Purpose
