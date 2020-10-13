@@ -18,10 +18,10 @@ crda_region="US"
 install_essentials() {
   # Before proceeding enhance makepkg and mkinitcpio
   sudo sed -i "s/^#MAKEFLAGS=.*/MAKEFLAGS=\"-j${cputhreads}\"/g" /etc/makepkg.conf
-  sudo sed -i "s/^COMPRESSXZ=.*/COMPRESSXZ=(xz -c -z - --threads=${cputhreads})/g" /etc/makepkg.conf
-  sudo sed -i "s/^COMPRESSZST=.*/COMPRESSZST=(zstd -c -z -q - --threads=${cputhreads})/g" /etc/makepkg.conf
+  sudo sed -i "s/^COMPRESSXZ=.*/COMPRESSXZ=(xz -c -z -1 - --threads=${cputhreads})/g" /etc/makepkg.conf
+  sudo sed -i "s/^PKGEXT=.*/PKGEXT='.pkg.tar.xz'/g" /etc/makepkg.conf
   sudo sed -i "s/^#COMPRESSION=\"xz\"/COMPRESSION=\"xz\"/g" /etc/mkinitcpio.conf
-  sudo sed -i "s/^#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-c -z - --threads=${cputhreads})/g" /etc/mkinitcpio.conf
+  sudo sed -i "s/^#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-c -z -1 - --threads=${cputhreads})/g" /etc/mkinitcpio.conf
 
   ### Begin core_pack generation
   ## Boilerplate
@@ -42,8 +42,8 @@ install_essentials() {
   fi
 
   if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
-    git clone https://aur.archlinux.org/optimus-manager.git
-    cd optimus-manager
+    git clone https://aur.archlinux.org/optimus-manager-git.git
+    cd optimus-manager-git
     makepkg -csi --noconfirm
     cd ..
 
@@ -90,7 +90,7 @@ install_essentials() {
   # Themeing
   core_pack="${core_pack} arc-gtk-theme papirus-icon-theme ttf-roboto xcursor-vanilla-dmz"
   # Thermal and power management
-  core_pack="${core_pack} ethtool powertop thermald tlp tlp-rdw upower x86_energy_perf_policy"
+  core_pack="${core_pack} powertop thermald"
   # TPM 2.0
   if [[ "${has_tpm}" == 2 ]]; then
     core_pack="${core_pack} ccid opensc tpm2-abrmd tpm2-pkcs11 tpm2-tools"
@@ -153,8 +153,14 @@ install_optionals() {
   sudo cp usr/bin/xenos-control-dns.sh /usr/bin/
   sudo chmod 700 /usr/bin/xenos-control-dns.sh
 
-  # Setup xenos-control-* as immutable
-  sudo chattr +i /usr/bin/xenos-control-defaults.sh /usr/bin/xenos-control-dns.sh
+  # Setup xenos-setup-power-scheme
+  sudo cp usr/bin/xenos-setup-power-scheme.sh /usr/bin/
+  sudo chmod 700 /usr/bin/xenos-setup-power-scheme.sh
+  sudo cp etc/systemd/system/xenos-setup-power-scheme.service /etc/systemd/system/
+  sudo chmod 644 /etc/systemd/system/xenos-setup-power-scheme.service
+
+  # Setup xenos-* as immutable
+  sudo chattr +i /usr/bin/xenos-control-defaults.sh /usr/bin/xenos-control-dns.sh /usr/bin/xenos-setup-power-scheme.sh
 }
 
 
@@ -222,7 +228,6 @@ toggle_systemctl() {
     "rngd.service"
     "systemd-resolved.service"
     "thermald.service"
-    "tlp.service"
     "upower.service"
     "xenos-control-defaults.service"
   )
@@ -265,12 +270,6 @@ misc_fixes() {
   # Fix systemd shutdown hanging issue
   sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
-
-  # Optimize tlp power saving defaults
-  sudo sed -i "s/^#CPU_ENERGY_PERF_POLICY_ON_AC=.*/CPU_ENERGY_PERF_POLICY_ON_AC=performance/g" /etc/tlp.conf
-  sudo sed -i "s/^#CPU_ENERGY_PERF_POLICY_ON_BAT=.*/CPU_ENERGY_PERF_POLICY_ON_BAT=power/g" /etc/tlp.conf
-  sudo sed -i "s/^#SATA_LINKPWR_ON_AC=.*/SATA_LINKPWR_ON_AC=\"max_performance\"/g" /etc/tlp.conf
-  sudo sed -i "s/^#SATA_LINKPWR_ON_BAT=.*/SATA_LINKPWR_ON_BAT=\"medium_power\"/g" /etc/tlp.conf
 
   # Specify CRDA region
   echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null

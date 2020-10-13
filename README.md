@@ -2,23 +2,18 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/11/20 <br/>
-Version: v2s
+Modified Date: 10/13/20 <br/>
+Version: v2t
 
 
 ## Changelog
-+ v2s
-  * S1.sh
-    + Variables:
-      * Add
-        + systemboot_options
-          * intel_pstate
++ v2t
   * S2b.sh
-    + Enhance toggle_systemctl().
-    + Add i915 optimizations.
-    + Remove powertop command.
-  * S1.sh & S2b.sh
-    + Replace shutdown now with systemctl poweroff.
+    + Enhance makepkg and mkinitcpio.
+    + Switch optimus-manager to optimus-manager-git.
+    + Remove the majority of power utilities.
+    + Add xenos-setup-power-scheme*.
+    + Add a few more modules.
 
 
 ## Purpose
@@ -69,23 +64,20 @@ And much much more.
   * https://wiki.archlinux.org/index.php/Makepkg
   * https://wiki.archlinux.org/index.php/Mkinitcpio
   * https://wiki.archlinux.org/index.php/Xorg
-  * https://github.com/Askannz/optimus-manager
-  * https://github.com/Askannz/optimus-manager/wiki/A-guide--to-power-management-options
+  * https://github.com/Askannz/optimus-manager/wiki
   * https://wiki.archlinux.org/index.php/List_of_Applications
   * https://wiki.archlinux.org/index.php/Smartcards
   * https://wiki.archlinux.org/index.php/Trusted_Platform_Module
   * https://github.com/venam/2bwm
 + install_optionals()
   * https://github.com/jonathanio/update-systemd-resolved
-  * https://developer.gnome.org/NetworkManager/stable/NetworkManager.html
-  * https://developer.gnome.org/NetworkManager/stable/NetworkManager.conf.html
   * https://wiki.archlinux.org/index.php/Systemd-resolved
+  * https://developer.gnome.org/NetworkManager/stable/
 + misc_fixes()
   * https://www.freedesktop.org/software/systemd/man/journald.conf
   * https://wiki.archlinux.org/index.php/Apparmor
   * https://wiki.archlinux.org/index.php/Lm_sensors
   * https://www.freedesktop.org/software/systemd/man/user.conf.d.html
-  * https://wiki.archlinux.org/index.php/Tlp
   * https://wiki.archlinux.org/index.php/Iw
 + harden_parts()
   * https://github.com/Neo23x0/auditd/blob/master/audit.rules
