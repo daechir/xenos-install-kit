@@ -42,8 +42,8 @@ install_essentials() {
   fi
 
   if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
-    git clone https://aur.archlinux.org/optimus-manager-git.git
-    cd optimus-manager-git
+    git clone https://aur.archlinux.org/optimus-manager.git
+    cd optimus-manager
     makepkg -csi --noconfirm
     cd ..
 
@@ -230,6 +230,7 @@ toggle_systemctl() {
     "thermald.service"
     "upower.service"
     "xenos-control-defaults.service"
+    "xenos-setup-power-scheme.service"
   )
 
   if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
@@ -239,8 +240,6 @@ toggle_systemctl() {
   if [[ "${has_tpm}" == 2 ]]; then
     enablectl=("${enablectl[@]}" "tpm2-abrmd.service" "pcscd.service")
   fi
-
-  enablectl=$(for ctl in "${enablectl[@]}"; do echo "${ctl}"; done | sort)
 
   for ctl in "${enablectl[@]}"
   do

@@ -2,18 +2,14 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/13/20 <br/>
-Version: v2t
+Modified Date: 10/14/20 <br/>
+Version: v2t1
 
 
 ## Changelog
-+ v2t
++ v2t1
   * S2b.sh
-    + Enhance makepkg and mkinitcpio.
-    + Switch optimus-manager to optimus-manager-git.
-    + Remove the majority of power utilities.
-    + Add xenos-setup-power-scheme*.
-    + Add a few more modules.
+    + Hotfixes after script testing.
 
 
 ## Purpose

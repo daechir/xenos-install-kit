@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script setups a powersaving scheme without all the bloat.
+# This script sets up a power saving scheme without all the bloat.
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
