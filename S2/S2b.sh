@@ -47,9 +47,6 @@ install_essentials() {
     makepkg -csi --noconfirm
     cd ..
 
-    sudo sed -i "s/^pci_power_control=.*/pci_power_control=yes/g" /usr/share/optimus-manager.conf
-    sudo sed -i "s/^pci_remove=.*/pci_remove=yes/g" /usr/share/optimus-manager.conf
-    sudo sed -i "s/^pci_reset=.*/pci_reset=hot_reset/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^auto_logout=.*/auto_logout=no/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^startup_mode=.*/startup_mode=intel/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^startup_auto_battery_mode=.*/startup_auto_battery_mode=intel/g" /usr/share/optimus-manager.conf

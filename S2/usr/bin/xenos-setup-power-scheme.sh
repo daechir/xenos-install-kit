@@ -3,13 +3,29 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 10/13/20
-# Version: v1
+# Modified Date: 10/15/20
+# Version: v1a
 
+
+hot_remove_nvidia(){
+  local has_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" 2> /dev/null || echo "")
+  local xorg_using_intel=$(grep -i 'driver "intel"' /etc/X11/xorg.conf.d/10-optimus-manager.conf 2> /dev/null || echo "")
+
+  if [[ -n "${has_nvidia_gpu}" && -n "${xorg_using_intel}" ]]; then
+    local nvidia_vga_id=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" | awk '{print $1}')
+    local nvidia_audio_id=$(lspci | grep -e Audio | grep -i "nvidia" | awk '{print $1}')
+
+    # Hot remove nvidia devices to save power
+    echo 1 | tee "/sys/bus/pci/devices/0000:${nvidia_vga_id}/remove" > /dev/null
+    echo 1 | tee "/sys/bus/pci/devices/0000:${nvidia_audio_id}/remove" > /dev/null
+  fi
+
+  return 0
+}
 
 setup_power_scheme(){
   # Set audio to power saving
-  echo 5 | tee /sys/module/snd_hda_intel/parameters/power_save > /dev/null
+  echo 1 | tee /sys/module/snd_hda_intel/parameters/power_save > /dev/null
   echo 1 | tee /sys/module/snd_hda_intel/parameters/power_save_controller > /dev/null
 
   # Set CPU Governor to power saving
@@ -19,7 +35,14 @@ setup_power_scheme(){
   done
 
   # Set PCI to autosuspend
+  echo "auto" | tee /sys/block/sd*/device/power/control > /dev/null
+
   for pci in /sys/bus/pci/devices/*/power/control
+  do
+    echo "auto" | tee "${pci}" > /dev/null
+  done
+
+  for pci in /sys/bus/pci/devices/*/ata*/power/control
   do
     echo "auto" | tee "${pci}" > /dev/null
   done
@@ -48,8 +71,8 @@ setup_power_scheme(){
 }
 
 
+hot_remove_nvidia
 setup_power_scheme
-
 
 exit 0
 
