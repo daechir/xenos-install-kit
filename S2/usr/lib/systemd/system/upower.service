@@ -1,37 +1,44 @@
 [Unit]
-Description=PC/SC Smart Card Daemon
-Requires=pcscd.socket
-Documentation=man:pcscd(8)
+Description=Daemon for power management
+Documentation=man:upowerd(8)
 
 [Service]
-ExecStart=/usr/bin/pcscd --foreground --auto-exit
-ExecReload=/usr/bin/pcscd --hotplug
+Type=dbus
+BusName=org.freedesktop.UPower
+ExecStart=/usr/lib/upowerd
+Restart=on-failure
+
+IPAddressDeny=any
+LimitMEMLOCK=0
+ReadWritePaths=/var/lib/upower
+StateDirectory=upower
 
 CapabilityBoundingSet=
-DevicePolicy=closed
+#DevicePolicy=strict
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
-PrivateDevices=yes
+#PrivateDevices=yes
 PrivateMounts=yes
-PrivateNetwork=yes
+#PrivateNetwork=yes
 PrivateTmp=yes
 PrivateUsers=yes
-ProtectClock=yes
+#ProtectClock=yes
 ProtectControlGroups=yes
 ProtectHome=yes
-ProtectHostname=yes
+#ProtectHostname=yes
 ProtectKernelModules=yes
-ProtectKernelTunables=yes
+#ProtectKernelTunables=yes
 ProtectKernelLogs=yes
-ProtectSystem=full
+ProtectSystem=strict
 RestrictAddressFamilies=AF_UNIX AF_NETLINK
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
+SystemCallFilter=ioprio_get
 SystemCallErrorNumber=EPERM
 
 [Install]
-Also=pcscd.socket
+WantedBy=graphical.target

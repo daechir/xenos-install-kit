@@ -1,21 +1,18 @@
 [Unit]
-Description=LVM2 metadata daemon
-Documentation=man:lvmetad(8)
-Requires=lvm2-lvmetad.socket
-Before=shutdown.target
-After=lvm2-lvmetad.socket systemd-udevd.service
+Description=Entropy Daemon based on the HAVEGE algorithm
+Documentation=man:haveged(8) http://www.issihosts.com/haveged/
 DefaultDependencies=no
-Conflicts=shutdown.target
+After=systemd-tmpfiles-setup-dev.service
+Before=sysinit.target shutdown.target systemd-journald.service
 
 [Service]
-Type=simple
-NonBlocking=true
-ExecStart=/usr/bin/lvmetad -f
-Environment=SD_ACTIVATION=1
-Restart=on-abort
-PIDFile=/run/lvmetad.pid
+ExecStart=/usr/bin/haveged -w 1024 -v 1 --Foreground
+Restart=always
+SuccessExitStatus=137 143
 
-CapabilityBoundingSet=
+SecureBits=noroot-locked
+
+CapabilityBoundingSet=CAP_SYS_ADMIN
 DevicePolicy=closed
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
@@ -30,13 +27,17 @@ ProtectControlGroups=yes
 ProtectHome=yes
 ProtectHostname=yes
 ProtectKernelModules=yes
-ProtectKernelTunables=yes
+#ProtectKernelTunables=yes
 ProtectKernelLogs=yes
-#ProtectSystem=strict
+ProtectSystem=full
 RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
+SystemCallFilter=~@mount
 SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=sysinit.target

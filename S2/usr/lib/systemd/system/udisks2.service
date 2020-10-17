@@ -31,6 +31,8 @@ RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 SystemCallArchitectures=native
+SystemCallFilter=@system-service @mount
+SystemCallErrorNumber=EPERM
 
 [Install]
 WantedBy=graphical.target

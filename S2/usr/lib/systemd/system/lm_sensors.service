@@ -1,19 +1,13 @@
 [Unit]
-Description=LVM2 metadata daemon
-Documentation=man:lvmetad(8)
-Requires=lvm2-lvmetad.socket
-Before=shutdown.target
-After=lvm2-lvmetad.socket systemd-udevd.service
-DefaultDependencies=no
-Conflicts=shutdown.target
+Description=Initialize hardware monitoring sensors
 
 [Service]
-Type=simple
-NonBlocking=true
-ExecStart=/usr/bin/lvmetad -f
-Environment=SD_ACTIVATION=1
-Restart=on-abort
-PIDFile=/run/lvmetad.pid
+EnvironmentFile=-/etc/conf.d/lm_sensors
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=-/sbin/modprobe -qab $BUS_MODULES $HWMON_MODULES
+ExecStart=/usr/bin/sensors -s
+ExecStop=-/sbin/modprobe -qabr $BUS_MODULES $HWMON_MODULES
 
 CapabilityBoundingSet=
 DevicePolicy=closed
@@ -23,16 +17,16 @@ NoNewPrivileges=yes
 PrivateDevices=yes
 PrivateMounts=yes
 PrivateNetwork=yes
-#PrivateTmp=yes
+PrivateTmp=yes
 PrivateUsers=yes
 ProtectClock=yes
 ProtectControlGroups=yes
 ProtectHome=yes
 ProtectHostname=yes
-ProtectKernelModules=yes
+#ProtectKernelModules=yes
 ProtectKernelTunables=yes
 ProtectKernelLogs=yes
-#ProtectSystem=strict
+ProtectSystem=strict
 RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
@@ -40,3 +34,6 @@ RestrictSUIDSGID=yes
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target

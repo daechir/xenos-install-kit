@@ -2,16 +2,16 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/15/20 <br/>
-Version: v2u
+Modified Date: 10/17/20 <br/>
+Version: v2v
 
 
 ## Changelog
-+ v2u
++ v2v
   * S2b.sh
-    + Remove all PCI power control from optimus-manager.
-    + Enhance xenos-setup-power-scheme.sh.
-    + Enhance and cleanup existing kernel parameters.
+    + Enhance xenos-control-defaults.service.
+    + Enhance xenos-setup-power-scheme.service.
+    + Enhance all other services.
 
 
 ## Purpose

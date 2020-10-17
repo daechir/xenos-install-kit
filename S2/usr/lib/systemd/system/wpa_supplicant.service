@@ -22,7 +22,7 @@ PrivateTmp=yes
 #PrivateUsers=yes
 ProtectClock=yes
 ProtectControlGroups=yes
-ProtectHome=read-only
+ProtectHome=yes
 ProtectKernelModules=yes
 #ProtectKernelTunables=yes
 ProtectKernelLogs=yes
@@ -32,6 +32,8 @@ RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
 
 [Install]
 WantedBy=multi-user.target
