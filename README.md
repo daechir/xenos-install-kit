@@ -3,18 +3,21 @@ Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
 Modified Date: 10/18/20 <br/>
-Version: v2v1
+Version: v2v2
 
 
 ## Changelog
-+ v2v1
++ v2v2
   * S1.sh
     + Variables:
-      * Add
+      * Remove
         + systemboot_options
           * intel_iommu=igfx_off
   * S2b.sh
-    + More service hardening.
+    + Add /etc/xdg/autostart to xenos-control-defaults.sh.
+    + Fine tune power settings in xenos-setup-power-scheme.sh.
+    + Revise at-spi* or accessibility hardening.
+    + Hotfix shadow.service.
 
 
 ## Purpose

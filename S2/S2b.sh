@@ -279,10 +279,10 @@ harden_parts() {
 
   # Harden at-spi* or accessibility
   echo -e "\n# Disable at-spi* or accessibility\nNO_GAIL=1\nNO_AT_BRIDGE=1\nexport NO_GAIL NO_AT_BRIDGE" | sudo tee -a /etc/profile > /dev/null
-  sudo sed -i "d" /etc/xdg/autostart/at-spi-dbus-bus.desktop
+  sudo sed -i "d" /usr/share/dbus-1/accessibility-services/org.a11y.atspi.Registry.service
   sudo sed -i "d" /usr/share/dbus-1/services/org.a11y.Bus.service
   sudo chmod 600 /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
-  sudo chattr +i /etc/xdg/autostart/at-spi-dbus-bus.desktop /usr/share/dbus-1/services/org.a11y.Bus.service /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
+  sudo chattr +i /usr/share/dbus-1/accessibility-services/org.a11y.atspi.Registry.service /usr/share/dbus-1/services/org.a11y.Bus.service /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
 
   # Harden consoles and ttys
   echo -e "\n+:(wheel):LOCAL\n-:ALL:ALL" | sudo tee -a /etc/security/access.conf > /dev/null

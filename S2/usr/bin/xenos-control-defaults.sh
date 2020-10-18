@@ -3,21 +3,18 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 09/30/20
-# Version: v1b
-
-
-# Variables
-folders=(
-  "/etc/NetworkManager/conf.d/"
-  "/usr/lib/NetworkManager/conf.d/"
-  "/usr/lib/sysctl.d/"
-)
-mimefiles1=/usr/share/applications/*
-mimefiles2=/usr/lib/libreoffice/share/xdg/*
+# Modified Date: 10/18/20
+# Version: v1c
 
 
 control_folders(){
+  local folders=(
+    "/etc/NetworkManager/conf.d/"
+    "/etc/xdg/autostart/"
+    "/usr/lib/NetworkManager/conf.d/"
+    "/usr/lib/sysctl.d/"
+  )
+
   for folder in "${folders[@]}"
   do
     rm -rf "${folder}"
@@ -28,6 +25,8 @@ control_folders(){
 }
 
 control_mimes(){
+  local mimefiles1=/usr/share/applications/*
+  local mimefiles2=/usr/lib/libreoffice/share/xdg/*
   local mimefilesgrep="reset"
 
   for mime in $mimefiles1
