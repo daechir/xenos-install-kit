@@ -1,14 +1,14 @@
 [Unit]
-Description=Disk Manager
-Documentation=man:udisks(8)
+Description=D-Bus System Message Bus
+Documentation=man:dbus-daemon(1)
+Requires=dbus.socket
 
 [Service]
-Type=dbus
-BusName=org.freedesktop.UDisks2
-ExecStart=/usr/lib/udisks2/udisksd
-KillSignal=SIGINT
+ExecStart=/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+ExecReload=/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+OOMScoreAdjust=-900
 
-CapabilityBoundingSet=CAP_SYS_ADMIN CAP_SYS_RAWIO
+#CapabilityBoundingSet=
 #DevicePolicy=strict
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
@@ -21,19 +21,16 @@ NoNewPrivileges=yes
 #ProtectClock=yes
 #ProtectControlGroups=yes
 #ProtectHome=yes
-ProtectHostname=yes
+#ProtectHostname=yes
 #ProtectKernelModules=yes
 #ProtectKernelTunables=yes
 #ProtectKernelLogs=yes
 #ProtectSystem=strict
-RestrictAddressFamilies=AF_UNIX AF_NETLINK
+#RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 SystemCallArchitectures=native
-SystemCallFilter=@system-service @mount
+#SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
 IPAddressDeny=any
-
-[Install]
-WantedBy=graphical.target

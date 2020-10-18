@@ -2,16 +2,19 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/17/20 <br/>
-Version: v2v
+Modified Date: 10/18/20 <br/>
+Version: v2v1
 
 
 ## Changelog
-+ v2v
++ v2v1
+  * S1.sh
+    + Variables:
+      * Add
+        + systemboot_options
+          * intel_iommu=igfx_off
   * S2b.sh
-    + Enhance xenos-control-defaults.service.
-    + Enhance xenos-setup-power-scheme.service.
-    + Enhance all other services.
+    + More service hardening.
 
 
 ## Purpose

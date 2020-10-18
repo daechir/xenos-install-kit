@@ -28,7 +28,6 @@ ExecStart=/usr/lib/systemd/systemd-udevd
 ExecReload=udevadm control --reload --timeout 0
 KillMode=mixed
 TasksMax=infinity
-IPAddressDeny=any
 WatchdogSec=3min
 
 #CapabilityBoundingSet=
@@ -56,3 +55,4 @@ RestrictSUIDSGID=yes
 SystemCallArchitectures=native
 SystemCallFilter=@system-service @module @raw-io
 SystemCallErrorNumber=EPERM
+IPAddressDeny=any

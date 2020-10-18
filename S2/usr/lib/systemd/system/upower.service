@@ -8,7 +8,6 @@ BusName=org.freedesktop.UPower
 ExecStart=/usr/lib/upowerd
 Restart=on-failure
 
-IPAddressDeny=any
 LimitMEMLOCK=0
 ReadWritePaths=/var/lib/upower
 StateDirectory=upower
@@ -39,6 +38,7 @@ SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallFilter=ioprio_get
 SystemCallErrorNumber=EPERM
+IPAddressDeny=any
 
 [Install]
 WantedBy=graphical.target

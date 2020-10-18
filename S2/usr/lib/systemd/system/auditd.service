@@ -53,6 +53,7 @@ RestrictSUIDSGID=yes
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
+IPAddressDeny=any
 
 [Install]
 WantedBy=multi-user.target

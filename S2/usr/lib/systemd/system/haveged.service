@@ -21,7 +21,7 @@ PrivateDevices=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 #PrivateTmp=yes
-PrivateUsers=yes
+#PrivateUsers=yes
 ProtectClock=yes
 ProtectControlGroups=yes
 ProtectHome=yes
@@ -38,6 +38,7 @@ SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallFilter=~@mount
 SystemCallErrorNumber=EPERM
+IPAddressDeny=any
 
 [Install]
 WantedBy=sysinit.target
