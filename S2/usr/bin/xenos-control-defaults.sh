@@ -3,8 +3,8 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 10/18/20
-# Version: v1c
+# Modified Date: 10/20/20
+# Version: v1d
 
 
 control_folders(){
@@ -13,6 +13,7 @@ control_folders(){
     "/etc/xdg/autostart/"
     "/usr/lib/NetworkManager/conf.d/"
     "/usr/lib/sysctl.d/"
+    "/usr/share/X11/xorg.conf.d/"
   )
 
   for folder in "${folders[@]}"

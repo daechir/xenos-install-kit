@@ -18,10 +18,10 @@ crda_region="US"
 install_essentials() {
   # Before proceeding enhance makepkg and mkinitcpio
   sudo sed -i "s/^#MAKEFLAGS=.*/MAKEFLAGS=\"-j${cputhreads}\"/g" /etc/makepkg.conf
-  sudo sed -i "s/^COMPRESSXZ=.*/COMPRESSXZ=(xz -c -z -1 - --threads=${cputhreads})/g" /etc/makepkg.conf
+  sudo sed -i "s/^COMPRESSXZ=.*/COMPRESSXZ=(xz -c -z - --threads=${cputhreads})/g" /etc/makepkg.conf
   sudo sed -i "s/^PKGEXT=.*/PKGEXT='.pkg.tar.xz'/g" /etc/makepkg.conf
   sudo sed -i "s/^#COMPRESSION=\"xz\"/COMPRESSION=\"xz\"/g" /etc/mkinitcpio.conf
-  sudo sed -i "s/^#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-c -z -1 - --threads=${cputhreads})/g" /etc/mkinitcpio.conf
+  sudo sed -i "s/^#COMPRESSION_OPTIONS=()/COMPRESSION_OPTIONS=(-c -z - --threads=${cputhreads})/g" /etc/mkinitcpio.conf
 
   ### Begin core_pack generation
   ## Boilerplate
@@ -255,21 +255,21 @@ misc_fixes() {
   # Fix lm_sensors
   sudo sensors-detect --auto
 
-  # Fix modprobe.d drivers
-  if [[ -n "${is_intel_cpu}" ]]; then
-    sudo cp etc/modules/01_iwlwifi.conf /etc/modprobe.d/
-    sudo cp etc/modules/02_i915.conf /etc/modprobe.d/
-  else
-    sudo cp etc/modules/01_snd_hda_intel.conf /etc/modprobe.d/
-  fi
-
   # Fix systemd shutdown hanging issue
   sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
-  # Specify CRDA region
-  echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
+  # Setup our specific CRDA region
+  echo -e "# Set CRDA region\noptions cfg80211 ieee80211_regdom=${crda_region}" | sudo tee -a /etc/modprobe.d/01_vendor_any.conf > /dev/null
   sudo sed -i "s/^#WIRELESS_REGDOM=\"${crda_region}\"/WIRELESS_REGDOM=\"${crda_region}\"/g" /etc/conf.d/wireless-regdom
+  echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
+
+  # Setup our modprobe.d driver customizations
+  if [[ -n "${is_intel_cpu}" ]]; then
+    sudo cp etc/modules/02_vendor_intel.conf /etc/modprobe.d/
+  else
+    sudo cp etc/modules/02_vendor_amd.conf /etc/modprobe.d/
+  fi
 }
 
 
@@ -356,6 +356,15 @@ harden_parts() {
   echo -e "[Service]\nSupplementaryGroups=proc" | sudo tee -a  /etc/systemd/system/systemd-logind.service.d/00_hide_pid.conf  > /dev/null
   sudo chmod -R 644 /etc/systemd/system/systemd-logind.service.d/
   echo "proc /proc proc noatime,nosuid,nodev,noexec,hidepid=2,gid=proc 0 0" | sudo tee -a  /etc/fstab > /dev/null
+
+  # Harden xorg
+  mkdir ~/.local/
+  mkdir ~/.local/share/
+  mkdir ~/.local/share/xorg/
+  cp tilde/local/share/xorg/00_xenos_xorg_hardening.conf ~/.local/share/xorg/
+
+  # Setup .bash_profile
+  cp tilde/bash_profile ~/.bash_profile
 
   # Setup doas
   echo "permit :wheel" | sudo tee -a /etc/doas.conf > /dev/null
