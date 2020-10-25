@@ -3,8 +3,8 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 09/30/20
-# Version: v1b
+# Modified Date: 10/23/20
+# Version: v1c
 
 
 ## Functions
@@ -14,13 +14,22 @@ initial_vars(){
   adjusted_time=$(date --date="-59 minutes ago" +"%I:%M")
   echo "Notice: The current lease of the openvpn connection begins at ${activated_time} and expires at ${adjusted_time}."
 
+  active_device_domain="init"
+
+  connection_state="reset"
+
   return 0
 }
 
 continuous_vars(){
-  active_device=$(ip -o link show | awk '{print $2,$9}' | grep -i "up" | awk '{print $1}' | sed "s/://g")
+  security_failure=$(journalctl | grep -i "failed ap scan\|beacon\|heard\|loss\|degraded feature set" | grep -i -v "execve")
+  inactive_firewall=$(systemctl status iptables | grep -i "inactive")
 
-  if [[ -n "${active_device}" ]]; then
+  active_device=$(ip -o link show | awk '{print $2,$9}' | grep -i "up" | awk '{print $1}' | sed "s/://g")
+  active_tunnel=$(ip -o link show | awk '{print $2}' | sed "s/://g" | grep -i "tun")
+
+  # active_device_connection only needs to be set once per session
+  if [[ -n "${active_device}" && -z "${active_device_connection}" ]]; then
     case "${active_device}" in
       wlo*)
         active_device_connection=$(nmcli connection show --active | grep -i "wifi" | awk '{print $1,$2,$3}')
@@ -29,17 +38,15 @@ continuous_vars(){
         active_device_connection=$(nmcli connection show --active | grep -i "ethernet" | awk '{print $1,$2,$3}')
         ;;
     esac
+  fi
 
+  # active_device_domain needs to be set twice per session to ensure firstly that connectivity_state() -> setup_connectivity() fires correctly and
+  # that secondly its value is set empty so that connectivity_state() -> kill_connectivity() fires correctly
+  if [[ -n "${active_device}" && "${active_device_domain}" == "init" || -n "${active_device}" && "${active_device_domain}" == "~." ]]; then
     active_device_domain=$(resolvectl domain "${active_device}" | awk '{print $4}')
   fi
 
-  active_tunnel=$(ip -o link show | awk '{print $2}' | sed "s/://g" | grep -i "tun")
-  ap_failure_1=$(journalctl | grep -i "failed to initiate ap scan" | grep -i -v "execve")
-  ap_failure_2=$(journalctl | grep -i "no beacon heard and the time event is over already" | grep -i -v "execve")
-  ap_failure_3=$(journalctl | grep -i "ctrl-event-beacon-loss" | grep -i -v "execve")
-  connection_state="reset"
   current_time=$(date +"%I:%M")
-  inactive_firewall=$(systemctl status iptables | grep -i "inactive")
 
   return 0
 }
@@ -47,7 +54,7 @@ continuous_vars(){
 connectivity_state(){
   ## Prepare connection_message and connection_state
   # If the current session, regardless of the current networking state, fails any or all of the security cases then set connection_state=0
-  if [[ -n "${ap_failure_1}" || -n "${ap_failure_2}" || -n "${ap_failure_3}" || -n "${inactive_firewall}" ]]; then
+  if [[ -n "${security_failure}" || -n "${inactive_firewall}" ]]; then
     connection_message="A security case has failed."
     connection_state=0
     return 0
@@ -132,21 +139,24 @@ do
   continuous_vars
   connectivity_state
 
-  case $connection_state in
-    0 | 1)
-      echo "Warning: ${connection_message} Now terminating the current networking state."
-      kill_connectivity "${active_device}"
-      break
-      ;;
-    2)
-      echo "Success: ${connection_message}"
-      setup_connectivity "${active_device}" "${active_device_connection}"
-      setup_connectivity "${active_tunnel}"
-      resolvectl domain "${active_tunnel}" "~."
-      ;;
-  esac
+  if [[ "${connection_state}" != "reset" ]]; then
+    case $connection_state in
+      0 | 1)
+        echo "Warning: ${connection_message} Now terminating the current networking state."
+        kill_connectivity "${active_device}"
+        break
+        ;;
+      2)
+        echo "Success: ${connection_message}"
+        setup_connectivity "${active_device}" "${active_device_connection}"
+        setup_connectivity "${active_tunnel}"
+        resolvectl domain "${active_tunnel}" "~."
+        connection_state="reset"
+        ;;
+    esac
+  fi
 
-  sleep 1
+  sleep 3
 done
 
 exit 0

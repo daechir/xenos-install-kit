@@ -2,16 +2,14 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/20/20 <br/>
-Version: v2w
+Modified Date: 10/25/20 <br/>
+Version: v2w1
 
 
 ## Changelog
-+ v2w
++ v2w1
   * S2b.sh
-    + Add /usr/share/X11/xorg.conf.d/ to xenos-control-defaults.sh.
-    + Seperate modprobe.d customizations based on vendor.
-    + Add Xorg server hardening.
+    + Vastly enhance xenos-control-dns.sh by reducing the total number of command executions.
 
 
 ## Purpose
