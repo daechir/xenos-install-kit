@@ -2,14 +2,16 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 10/25/20 <br/>
-Version: v2w1
+Modified Date: 11/02/20 <br/>
+Version: v2w2
 
 
 ## Changelog
-+ v2w1
++ v2w2
   * S2b.sh
-    + Vastly enhance xenos-control-dns.sh by reducing the total number of command executions.
+    + Make xenos-control-defaults.service and xenos-setup-power-scheme.service run before userland:
+      * This fixes a issue where sysctl variables or other configuration file settings can be applied before xenos-control-defaults.service runs.
+      * This fixes a potential nvidia pci exploit where the GPU can be enabled again even when it should be kicked out of the bus entirely by xenos-setup-power-scheme.service.
 
 
 ## Purpose
