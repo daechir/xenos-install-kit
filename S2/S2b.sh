@@ -366,6 +366,9 @@ harden_parts() {
   # Setup .bash_profile
   cp tilde/bash_profile ~/.bash_profile
 
+  # Setup .xinitrc
+  cp tilde/xinitrc ~/.xinitrc
+
   # Setup doas
   echo "permit :wheel" | sudo tee -a /etc/doas.conf > /dev/null
 

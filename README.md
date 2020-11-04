@@ -1,21 +1,23 @@
-# Author
+1# Author
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 11/02/20 <br/>
-Version: v2w2
+Modified Date: 11/05/20 <br/>
+Version: v2w3
 
 
 ## Changelog
-+ v2w2
++ v2w3
+  * README.md
+    + Refine desired system specs section.
+    + Add about optimus section.
+    + Add usage section.
   * S2b.sh
-    + Make xenos-control-defaults.service and xenos-setup-power-scheme.service run before userland:
-      * This fixes a issue where sysctl variables or other configuration file settings can be applied before xenos-control-defaults.service runs.
-      * This fixes a potential nvidia pci exploit where the GPU can be enabled again even when it should be kicked out of the bus entirely by xenos-setup-power-scheme.service.
+    + Add a minimal .xinitrc.
 
 
 ## Purpose
-The Xenos Install Kit serves as a custom automated Arch Linux installer fine tuned for specific use cases:
+The Xenos Install Kit serves as a custom automated Arch Linux installer fine-tuned for specific use cases:
 + It's ideal for those who want a fully featured OS without too much bloat.
 + It's ideal for those who desire security above all else.
 + It's ideal for an intermediate to expert linux user.
@@ -27,14 +29,33 @@ If any of the above criteria fit your use case then make sure to audit the scrip
 
 
 ## Desired System Specs
-PC Type: Desktop or laptop <br/>
-Architecture: x86-64 <br/>
+PC Type: Laptop preferred <br/>
+Architecture: x86_64 <br/>
 BIOS Type: UEFI (EFI) <br/>
-CPU: Detected <br/>
-GPU: Detected <br/>
-Language: User defined (Default en_US.UTF-8) <br/>
-Timezone: User defined (Default America/New_York) <br/>
-TPM: 2.0 supported
+GPU: Integrated preferred (Non-optimus)<br/>
+TPM: 2.0 supported<br/><br/>
+Note:<br/>
+Optimus enabled laptops are truly non-ideal for this installer or linux in general.<br/>
+Please see the about optimus section below for more information.
+
+
+## About Optimus
+Optimus enabled systems have generally had poor support over the years in linux.<br/>
+This is mostly due to the design concept and the lack of official support from Intel, AMD or NVIDIA.<br/>
+As such until optimus-manager was released optimus support was very hacky.<br/>
+However, this installer hasn't been created with these systems in mind.<br/>
+This installer should work out of the box though if you have a integrated GPU alongside your dedicated GPU.<br/>
+Beyond that you will have to disable the lockdown and module.sig_enforce kernel parameters to use custom modules like nvidia-dkms to use the GPU in general or bumblebee-dkms for proper power management of it.<br/>
+From a security standpoint I don't recommend this for several reasons:
++ Without lockdown and module.sig_enforce enabled the attack surface of your entire system is vastly increased.
++ With the nvidia-dkms module in use you're effectively tainting the kernel with proprietary globs.
++ With the bumblebee-dkms module in use, which is under maintained, the attack surface increases further.
++ With the use of the dedicated GPU a skilled attacker may be able to write malicious firmware to the card itself without your knowledge. This would essentially create a permanent backdoor that
+is reoccurring across reinstalls until you update its firmware manually.
++ One can assume use of the dedicated GPU is intended for gaming on linux (most of the time). This alone will make you add other libraries in different architecture types to even play your games. In recent years these libraries have been the focus of many new types of privilege escalation attacks.
+
+The list goes on and on.<br/>
+Therefore this installer will never fully support optimus enabled laptops due to the fact it's out of the scope of the xenos install kits purpose.
 
 
 ## Features
@@ -42,9 +63,26 @@ Full Disk Encryption <br/>
 Kernel CPU Mitigations <br/>
 Kernel Module Restrictions <br/>
 Kernel Hardening and Optimizations <br/>
-Comprehensive System Auditing <br/>
+Comprehensive System Auditing
 
 And much much more.
+
+
+## Usage
+This section assumes that you have already read the purpose, about optimus and the desired system specs sections above.<br/>
+It also assumes that you have already installed or have attempted to install Arch Linux with their installation guide.<br/>
+If you haven't done any of these things then proceed with caution.<br/><br/>
+First edit S1.sh and add:
+  * A luks passphrase
+  * A username
+  * A password
+  * Update any other variables like language or timezone
+
+Second edit S2b.sh and update its variables as needed.<br/>
+Third upload S1.sh to a host of your choice then also archive the entire S2 folder and upload it there.<br/>
+Fourth insert the Arch USB, curl S1.sh only, chmod +x it and ./S1.sh.<br/>
+Fifth boot into the barebones system, login, start dhcpcd.service, curl the archive of S2 from above, unpackage it,
+chmod +x the sh files, sudo ./S2a.sh and finally ./S2b.sh.
 
 
 ## Sources

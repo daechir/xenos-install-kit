@@ -1,0 +1,2 @@
+2bwm &
+exec terminator --no-dbus
