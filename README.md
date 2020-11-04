@@ -1,4 +1,4 @@
-1# Author
+# Author
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
