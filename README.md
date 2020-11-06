@@ -3,13 +3,13 @@ Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
 Modified Date: 11/06/20 <br/>
-Version: v2x1
+Version: v2x2
 
 
 ## Changelog
-+ v2x1
++ v2x2
   * S2b.sh
-    + Make xenos-control-dns.sh adhere to systemd.net-naming-scheme.
+    + Revise xenos-control-defaults.service and xenos-control-power-scheme.service order cycling (Again).
 
 
 ## Purpose

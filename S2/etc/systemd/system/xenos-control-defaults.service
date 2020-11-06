@@ -1,7 +1,5 @@
 [Unit]
 Description=xenos-control-defaults.sh
-DefaultDependencies=no
-Before=systemd-sysctl.service sysinit.target
 
 [Service]
 Type=oneshot
@@ -34,3 +32,6 @@ SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
 IPAddressDeny=any
 UMask=0077
+
+[Install]
+WantedBy=sysinit.target
