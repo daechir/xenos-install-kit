@@ -3,8 +3,8 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 10/23/20
-# Version: v1c
+# Modified Date: 11/06/20
+# Version: v1d
 
 
 ## Functions
@@ -31,10 +31,10 @@ continuous_vars(){
   # active_device_connection only needs to be set once per session
   if [[ -n "${active_device}" && -z "${active_device_connection}" ]]; then
     case "${active_device}" in
-      wlo*)
+      wl*)
         active_device_connection=$(nmcli connection show --active | grep -i "wifi" | awk '{print $1,$2,$3}')
         ;;
-      enp*)
+      en*)
         active_device_connection=$(nmcli connection show --active | grep -i "ethernet" | awk '{print $1,$2,$3}')
         ;;
     esac
@@ -114,7 +114,7 @@ setup_connectivity(){
   ip link set dev "${xenos_device}" multicast off
 
   if [[ -n "${xenos_connection}" ]]; then
-    if [[ "${xenos_device}" == wlo* ]]; then
+    if [[ "${xenos_device}" == wl* ]]; then
       nmcli connection mod "${xenos_connection}" 802-11-wireless.powersave 2
     fi
 

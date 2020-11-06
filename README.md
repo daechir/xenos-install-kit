@@ -3,13 +3,13 @@ Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
 Modified Date: 11/06/20 <br/>
-Version: v2x
+Version: v2x1
 
 
 ## Changelog
-+ v2x
++ v2x1
   * S2b.sh
-    + Add more modules.
+    + Make xenos-control-dns.sh adhere to systemd.net-naming-scheme.
 
 
 ## Purpose
@@ -104,6 +104,7 @@ chmod +x the sh files, sudo ./S2a.sh and finally ./S2b.sh.
 + install_optionals()
   * https://github.com/jonathanio/update-systemd-resolved
   * https://wiki.archlinux.org/index.php/Systemd-resolved
+  * https://www.freedesktop.org/software/systemd/man/systemd.net-naming-scheme.html
   * https://developer.gnome.org/NetworkManager/stable/
 + misc_fixes()
   * https://www.freedesktop.org/software/systemd/man/journald.conf
