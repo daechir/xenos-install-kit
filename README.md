@@ -2,18 +2,14 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 11/05/20 <br/>
-Version: v2w3
+Modified Date: 11/06/20 <br/>
+Version: v2x
 
 
 ## Changelog
-+ v2w3
-  * README.md
-    + Refine desired system specs section.
-    + Add about optimus section.
-    + Add usage section.
++ v2x
   * S2b.sh
-    + Add a minimal .xinitrc.
+    + Add more modules.
 
 
 ## Purpose
