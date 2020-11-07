@@ -1,5 +1,6 @@
 [Unit]
 Description=xenos-setup-power-scheme.sh
+After=upower.service optimus-manager.service
 
 [Service]
 Type=oneshot
@@ -34,4 +35,4 @@ IPAddressDeny=any
 UMask=0077
 
 [Install]
-WantedBy=sysinit.target
+WantedBy=graphical.target

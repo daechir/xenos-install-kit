@@ -2,14 +2,16 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 11/06/20 <br/>
-Version: v2x2
+Modified Date: 11/07/20 <br/>
+Version: v2x3
 
 
 ## Changelog
-+ v2x2
++ v2x3
   * S2b.sh
-    + Revise xenos-control-defaults.service and xenos-control-power-scheme.service order cycling (Again).
+    + Final revisions of xenos-control-defaults.service and xenos-setup-power-scheme.service.
+    + Swap function call order in xenos-setup-power-scheme.sh.
+    + Add fastboot to 02_vendor_intel.conf.
 
 
 ## Purpose

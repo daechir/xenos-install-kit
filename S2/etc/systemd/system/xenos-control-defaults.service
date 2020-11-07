@@ -1,5 +1,10 @@
 [Unit]
 Description=xenos-control-defaults.sh
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=systemd-modules-load.service
+Before=systemd-sysctl.service systemd-user-sessions.service dbus.service NetworkManager.service wpa_supplicant.service
+Before=multi-user.target network-pre.target network.target network-online.target graphical.target shutdown.target
 
 [Service]
 Type=oneshot

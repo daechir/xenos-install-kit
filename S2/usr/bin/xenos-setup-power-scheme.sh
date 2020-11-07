@@ -3,13 +3,13 @@
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 10/18/20
-# Version: v1b
+# Modified Date: 11/07/20
+# Version: v1c
 
 
 hot_remove_nvidia(){
   local has_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" 2> /dev/null || echo "")
-  local xorg_using_intel=$(grep -i 'driver "intel"' /etc/X11/xorg.conf.d/10-optimus-manager.conf 2> /dev/null || echo "")
+  local xorg_using_intel=$(grep -i 'driver "intel"\|driver "modesetting"' /etc/X11/xorg.conf.d/10-optimus-manager.conf 2> /dev/null || echo "")
 
   if [[ -n "${has_nvidia_gpu}" && -n "${xorg_using_intel}" ]]; then
     local nvidia_vga_id=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" | awk '{print $1}')
@@ -83,8 +83,8 @@ setup_power_scheme(){
 }
 
 
-hot_remove_nvidia
 setup_power_scheme
+hot_remove_nvidia
 
 exit 0
 
