@@ -304,7 +304,7 @@ harden_parts() {
   echo -e "\n# Disable .lesshst\nLESSHISTFILE=/dev/null\nLESSHISTSIZE=0\nexport LESSHISTFILE LESSHISTSIZE" | sudo tee -a /etc/profile > /dev/null
 
   # Harden less
-  echo -e "\n# Enable LESSSECURE mode\nexport LESSSECURE=1" | sudo tee -a /etc/profile > /dev/null
+  echo -e "\n# Harden LESS\nSYSTEMD_PAGERSECURE=1\nLESSSECURE=1\nexport SYSTEMD_PAGERSECURE LESSSECURE" | sudo tee -a /etc/profile > /dev/null
 
   ## Harden modules
   # Kernel level

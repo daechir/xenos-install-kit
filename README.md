@@ -2,16 +2,21 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 11/07/20 <br/>
-Version: v2x3
+Modified Date: 12/01/20 <br/>
+Version: v2y
 
 
 ## Changelog
-+ v2x3
++ v2y
+  * S1.sh
+    + Alphabetical reorganization of kernel parameters.
+    + Variables:
+      * Add
+        + systemboot_options
+          * systemd.dump_core=0
   * S2b.sh
-    + Final revisions of xenos-control-defaults.service and xenos-setup-power-scheme.service.
-    + Swap function call order in xenos-setup-power-scheme.sh.
-    + Add fastboot to 02_vendor_intel.conf.
+    + Add SYSTEMD_PAGERSECURE=1 in advance for systemd 247.
+    + Add more sysctl parameters.
 
 
 ## Purpose
