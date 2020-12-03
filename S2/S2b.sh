@@ -9,7 +9,7 @@ is_amd_gpu=$(lspci | grep -e VGA -e 3D | grep -i "amd" 2> /dev/null || echo "")
 is_intel_gpu=$(lspci | grep -e VGA -e 3D | grep -i "intel" 2> /dev/null || echo "")
 is_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" 2> /dev/null || echo "")
 install_nvidia=""
-install_optimus="1"
+install_optimus=""
 has_tpm=$(cat /sys/class/tpm/tpm0/tpm_version_major 2> /dev/null || echo "")
 is_intel_cpu=$(lscpu | grep -i "intel(r)" 2> /dev/null || echo "")
 crda_region="US"
@@ -26,7 +26,7 @@ install_essentials() {
   ### Begin core_pack generation
   ## Boilerplate
   # Base
-  core_pack="xorg-server xorg-xinit xorg-xinput xorg-xsetroot xorgproto"
+  local core_pack="xorg-server xorg-xinit xorg-xinput xorg-xsetroot xorgproto"
 
   # Graphic Drivers
   if [[ -n "${is_amd_gpu}" ]]; then
@@ -55,6 +55,15 @@ install_essentials() {
     sudo sed -i "s/^accel=.*/accel=sna/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^tearfree=.*/tearfree=yes/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^DRI=.*/DRI=3/g" /usr/share/optimus-manager.conf
+
+    sudo cp usr/lib/systemd/system-optional/optimus-manager.service /usr/lib/systemd/system/
+  fi
+
+  if [[ -n "${is_intel_gpu}" && -z "${install_optimus}" ]]; then
+    local intel_gpu_bus_id=$(lspci | grep -e VGA -e 3D | grep -i "intel" 2> /dev/null | awk '{print $1}' | grep -Eo "[1-9]")
+
+    sed -i "s/^  BusID.*/  BusID \"PCI:0:${intel_gpu_bus_id}:0\"/g" etc/X11/xorg.conf.d/00_xenos_intel_gpu_configuration.conf
+    sudo cp etc/X11/xorg.conf.d/00_xenos_intel_gpu_configuration.conf /etc/X11/xorg.conf.d/
   fi
 
   # GUI (1/2)
@@ -126,17 +135,23 @@ install_optionals() {
   cd ..
 
   # Setup openvpn-update-systemd-resolved nsswitch.conf
-  sudo sed -i "1,2!d" /etc/nsswitch.conf
-  echo -e "\nhosts: files dns resolve myhostname\nhosts: files resolve dns myhostname\nhosts: files resolve myhostname" | sudo tee -a  /etc/nsswitch.conf > /dev/null
+  sudo sed -i "d" /etc/nsswitch.conf
+  echo -e "# nsswitch.conf is not used in our system.\n# Its functionality instead is handled by /run/systemd/resolve/stub-resolv.conf." | sudo tee -a  /etc/nsswitch.conf > /dev/null
 
   # Setup openvpn-update-systemd-resolved stub-resolv.conf
   sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
   # Setup openvpn-update-systemd-resolved resolved.conf
-  sudo sed -i "1,12!d" /etc/systemd/resolved.conf
-  echo -e "\n[Resolve]\n#DNS=\nFallbackDNS=\nDomains=\nDNSSEC=yes\nDNSOverTLS=no\nMulticastDNS=no\nLLMNR=no\nCache=yes\nDNSStubListener=yes\nReadEtcHosts=yes\nResolveUnicastSingleLabel=no" | sudo tee -a  /etc/systemd/resolved.conf > /dev/null
+  sudo sed -i "1,18!d" /etc/systemd/resolved.conf
+  echo -e "#DNS=\nFallbackDNS=\nDomains=\nDNSSEC=yes\nDNSOverTLS=no\nMulticastDNS=no\nLLMNR=no\nCache=yes\nDNSStubListener=yes\nDNSStubListenerExtra=\nReadEtcHosts=yes\nResolveUnicastSingleLabel=no" | sudo tee -a  /etc/systemd/resolved.conf > /dev/null
 
+  #########################################################################################
   # Setup an unprivileged Openvpn daemon to house delevated Openvpn connections
+  #
+  # Note:
+  # As of Openvpn v2.5.0 another user named openvpn is created for this purpose by default.
+  # However for additional security we will still create our own.
+  #########################################################################################
   sudo useradd -r -c "Unprivileged Openvpn daemon" -u 26000 -s /usr/bin/nologin -d / novpn
   sudo groupmod -g 26000 novpn
 
@@ -168,6 +183,7 @@ toggle_systemctl() {
   sudo systemctl disable dhcpcd.service
 
   local disablectl=(
+    "alsa-state.service"
     "avahi-daemon.service"
     "avahi-dnsconfd.service"
     "emergency.service"

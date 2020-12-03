@@ -2,21 +2,23 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 12/01/20 <br/>
-Version: v2y
+Modified Date: 12/03/20 <br/>
+Version: v2y1
 
 
 ## Changelog
-+ v2y
-  * S1.sh
-    + Alphabetical reorganization of kernel parameters.
-    + Variables:
-      * Add
-        + systemboot_options
-          * systemd.dump_core=0
++ v2y1
   * S2b.sh
-    + Add SYSTEMD_PAGERSECURE=1 in advance for systemd 247.
-    + Add more sysctl parameters.
+    + Make core_pack local.
+    + Disable optimus-manager installation by default.
+      * optimus-manager can still be installed by writing to its install variable.
+    + Add 00_xenos_intel_gpu_configuration.conf to reflect the above change.
+    + Deprecate openvpn-update-systemd-resolved nsswitch.conf.
+      * nsswitch.conf is not used in our system.
+    + Update openvpn-update-systemd-resolved resolved.conf to match systemd v247 changes.
+    + Add note regarding Openvpn v2.5.0.
+    + Add alsa-state.service to disablectl.
+      * This service effectively does nothing now unless /etc/alsa/state-daemon.conf exists.
 
 
 ## Purpose
