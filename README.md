@@ -3,22 +3,14 @@ Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
 Modified Date: 12/03/20 <br/>
-Version: v2y1
+Version: v2y2
 
 
 ## Changelog
-+ v2y1
++ v2y2
   * S2b.sh
-    + Make core_pack local.
-    + Disable optimus-manager installation by default.
-      * optimus-manager can still be installed by writing to its install variable.
-    + Add 00_xenos_intel_gpu_configuration.conf to reflect the above change.
-    + Deprecate openvpn-update-systemd-resolved nsswitch.conf.
-      * nsswitch.conf is not used in our system.
-    + Update openvpn-update-systemd-resolved resolved.conf to match systemd v247 changes.
-    + Add note regarding Openvpn v2.5.0.
-    + Add alsa-state.service to disablectl.
-      * This service effectively does nothing now unless /etc/alsa/state-daemon.conf exists.
+    + Add ProtectProc to all customized systemd service files.
+      * Note: Systemd-analyze security doesn't greenlight ProtectProc=noaccess even though it should like it more than ProtectProc=invisible. One would think that denying access to /proc entirely would provide a greater security benefit than simply hiding it. Therefore in light of this ProtectProc=invisible will be used as it seems to be the "recommended" option until the latter is fixed.
 
 
 ## Purpose

@@ -25,6 +25,7 @@ NoNewPrivileges=yes
 #ProtectKernelModules=yes
 #ProtectKernelTunables=yes
 #ProtectKernelLogs=yes
+#ProtectProc=invisible
 #ProtectSystem=strict
 #RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes

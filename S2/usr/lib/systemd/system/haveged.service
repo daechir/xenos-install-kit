@@ -29,6 +29,7 @@ ProtectHostname=yes
 ProtectKernelModules=yes
 #ProtectKernelTunables=yes
 ProtectKernelLogs=yes
+ProtectProc=invisible
 ProtectSystem=full
 RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes

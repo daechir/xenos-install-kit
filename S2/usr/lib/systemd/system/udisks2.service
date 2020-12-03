@@ -25,6 +25,7 @@ ProtectHostname=yes
 #ProtectKernelModules=yes
 #ProtectKernelTunables=yes
 #ProtectKernelLogs=yes
+#ProtectProc=invisible
 #ProtectSystem=strict
 RestrictAddressFamilies=AF_UNIX AF_NETLINK
 RestrictNamespaces=yes

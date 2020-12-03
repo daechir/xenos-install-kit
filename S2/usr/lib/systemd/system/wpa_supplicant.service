@@ -26,6 +26,7 @@ ProtectHome=yes
 ProtectKernelModules=yes
 #ProtectKernelTunables=yes
 ProtectKernelLogs=yes
+ProtectProc=invisible
 ProtectSystem=yes
 RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_INET AF_INET6 AF_PACKET
 RestrictNamespaces=yes
