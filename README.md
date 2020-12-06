@@ -2,21 +2,29 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 12/03/20 <br/>
-Version: v2y2
+Modified Date: 12/05/20 <br/>
+Version: v2y3
 
 
 ## Changelog
-+ v2y2
++ v2y3
+  * S1.sh
+    + Replace deprecated security= parameter.
+    + Variables:
+      * Add
+        + systemdboot_options
+          * nohibernate
   * S2b.sh
-    + Add ProtectProc to all customized systemd service files.
-      * Note: Systemd-analyze security doesn't greenlight ProtectProc=noaccess even though it should like it more than ProtectProc=invisible. One would think that denying access to /proc entirely would provide a greater security benefit than simply hiding it. Therefore in light of this ProtectProc=invisible will be used as it seems to be the "recommended" option until the latter is fixed.
+    + Hotfix:
+      * Missing /etc/X11/xorg.conf.d/ folder.
+      * Grep call in /usr/bin/xenos-setup-power-scheme.sh.
 
 
 ## Purpose
 The Xenos Install Kit serves as a custom automated Arch Linux installer fine-tuned for specific use cases:
 + It's ideal for those who want a fully featured OS without too much bloat.
 + It's ideal for those who desire security above all else.
++ It's ideal for those who desire a stable system.
 + It's ideal for an intermediate to expert linux user.
 + It's ideal for those who are ok with troubleshooting issues on their own as:
   * The software may not always work as expected.
@@ -85,6 +93,7 @@ chmod +x the sh files, sudo ./S2a.sh and finally ./S2b.sh.
 ## Sources
 ### S1 (Step 1)
 #### S1 .sh
++ https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
 + https://wiki.archlinux.org/index.php/Installation_Guide
 + https://wiki.archlinux.org/index.php/Dm-crypt/Device_encryption
 + https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system

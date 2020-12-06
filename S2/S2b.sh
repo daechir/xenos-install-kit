@@ -63,6 +63,7 @@ install_essentials() {
     local intel_gpu_bus_id=$(lspci | grep -e VGA -e 3D | grep -i "intel" 2> /dev/null | awk '{print $1}' | grep -Eo "[1-9]")
 
     sed -i "s/^  BusID.*/  BusID \"PCI:0:${intel_gpu_bus_id}:0\"/g" etc/X11/xorg.conf.d/00_xenos_intel_gpu_configuration.conf
+    sudo mkdir /etc/X11/xorg.conf.d/
     sudo cp etc/X11/xorg.conf.d/00_xenos_intel_gpu_configuration.conf /etc/X11/xorg.conf.d/
   fi
 

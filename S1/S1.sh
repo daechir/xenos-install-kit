@@ -28,7 +28,7 @@ username="$"
 userpass="$"
 # Begin systemdboot_options generation
 # Core security features
-systemdboot_options="apparmor=1 security=apparmor audit=1"
+systemdboot_options="apparmor=1 lsm=lockdown,yama,apparmor audit=1"
 # CPU mitigations
 systemdboot_options="${systemdboot_options} spectre_v2=on"
 systemdboot_options="${systemdboot_options} spec_store_bypass_disable=on"
@@ -61,6 +61,7 @@ systemdboot_options="${systemdboot_options} ipv6.disable=1"
 systemdboot_options="${systemdboot_options} lockdown=confidentiality"
 systemdboot_options="${systemdboot_options} module.sig_enforce=1"
 systemdboot_options="${systemdboot_options} nowatchdog"
+systemdboot_options="${systemdboot_options} nohibernate"
 systemdboot_options="${systemdboot_options} oops=panic"
 systemdboot_options="${systemdboot_options} systemd.dump_core=0"
 systemdboot_options="${systemdboot_options} cryptdevice=/dev/${volume}/root:root:allow-discards root=/dev/mapper/root"
@@ -92,11 +93,11 @@ setup_drive() {
 
   #Partition				Size			Type						Code
   #-----------------------------------------------------------------------
-  #/dev/sdx1				550M			EFI							ef00
+  #/dev/sdx1				1G  			EFI							ef00
   #/dev/sdx2				100%FREE		Linux LUKS					8300
 
   # Create the drive partitions
-  sgdisk -n 1:0:+550M "${drive}"
+  sgdisk -n 1:0:+1G "${drive}"
   sgdisk -n 2:0:0 "${drive}"
 
   # Set the drive partition types
