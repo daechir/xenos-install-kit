@@ -2,22 +2,35 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 12/05/20 <br/>
-Version: v2y3
+Modified Date: 12/20/20 <br/>
+Version: v2z
 
 
 ## Changelog
-+ v2y3
++ v2z
   * S1.sh
-    + Replace deprecated security= parameter.
     + Variables:
       * Add
         + systemdboot_options
-          * nohibernate
+          * iommu=soft
   * S2b.sh
-    + Hotfix:
-      * Missing /etc/X11/xorg.conf.d/ folder.
-      * Grep call in /usr/bin/xenos-setup-power-scheme.sh.
+    + Add 00_xenos_amd_gpu_configuration.conf.
+    + Deprecate BusID parameter in etc/X11/xorg.conf.d/ files.
+    + Remove powertop.
+      * Powertop no longer works due to the disabling of debugfs.
+    + Diversify thermald installation and enabling based on gpu (i.e. cpu) type.
+      * Note: This will also diversify the installation and enabling of upower as-well.
+    + Update 02_vendor_amd.conf.
+      * Temporarily blacklist Realtek rtw88_8821ce until all RFE's are supported.
+    + Update 02_vendor_intel.conf.
+      * Add blacklist logic for Intel iwlwifi because of the following reasons:
+        + It doesn't adhere to the FOSS philosophy.
+        + It reconfigures the firewall.
+        + It ignores WIRELESS_REGDOM rules.
+    + Audit.rules version bump.
+    + Specify random port for sshd.
+    + Refactor some service files as optional or conditional.
+    + Ship a minimal .bashrc.
 
 
 ## Purpose

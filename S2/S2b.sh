@@ -11,7 +11,6 @@ is_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" 2> /dev/null || ech
 install_nvidia=""
 install_optimus=""
 has_tpm=$(cat /sys/class/tpm/tpm0/tpm_version_major 2> /dev/null || echo "")
-is_intel_cpu=$(lscpu | grep -i "intel(r)" 2> /dev/null || echo "")
 crda_region="US"
 
 
@@ -55,14 +54,14 @@ install_essentials() {
     sudo sed -i "s/^accel=.*/accel=sna/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^tearfree=.*/tearfree=yes/g" /usr/share/optimus-manager.conf
     sudo sed -i "s/^DRI=.*/DRI=3/g" /usr/share/optimus-manager.conf
+  fi
 
-    sudo cp usr/lib/systemd/system-optional/optimus-manager.service /usr/lib/systemd/system/
+  if [[ -n "${is_amd_gpu}" ]]; then
+    sudo mkdir /etc/X11/xorg.conf.d/
+    sudo cp etc/X11/xorg.conf.d/00_xenos_amd_gpu_configuration.conf /etc/X11/xorg.conf.d/
   fi
 
   if [[ -n "${is_intel_gpu}" && -z "${install_optimus}" ]]; then
-    local intel_gpu_bus_id=$(lspci | grep -e VGA -e 3D | grep -i "intel" 2> /dev/null | awk '{print $1}' | grep -Eo "[1-9]")
-
-    sed -i "s/^  BusID.*/  BusID \"PCI:0:${intel_gpu_bus_id}:0\"/g" etc/X11/xorg.conf.d/00_xenos_intel_gpu_configuration.conf
     sudo mkdir /etc/X11/xorg.conf.d/
     sudo cp etc/X11/xorg.conf.d/00_xenos_intel_gpu_configuration.conf /etc/X11/xorg.conf.d/
   fi
@@ -96,8 +95,10 @@ install_essentials() {
   core_pack="${core_pack} gnome-keyring gnome-themes-extra gtk-engine-murrine"
   # Themeing
   core_pack="${core_pack} arc-gtk-theme papirus-icon-theme ttf-roboto xcursor-vanilla-dmz"
-  # Thermal and power management
-  core_pack="${core_pack} powertop thermald"
+  # Thermald
+  if [[ -n "${is_intel_gpu}" ]]; then
+    core_pack="${core_pack} thermald"
+  fi
   # TPM 2.0
   if [[ "${has_tpm}" == 2 ]]; then
     core_pack="${core_pack} ccid opensc tpm2-abrmd tpm2-pkcs11 tpm2-tools"
@@ -241,11 +242,13 @@ toggle_systemctl() {
     "NetworkManager.service"
     "rngd.service"
     "systemd-resolved.service"
-    "thermald.service"
-    "upower.service"
     "xenos-control-defaults.service"
     "xenos-setup-power-scheme.service"
   )
+
+  if [[ -n "${is_intel_gpu}" ]]; then
+	enablectl=("${enablectl[@]}" "upower.service" "thermald.service")
+  fi
 
   if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
     enablectl=("${enablectl[@]}" "optimus-manager.service")
@@ -282,7 +285,7 @@ misc_fixes() {
   echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
 
   # Setup our modprobe.d driver customizations
-  if [[ -n "${is_intel_cpu}" ]]; then
+  if [[ -n "${is_intel_gpu}" ]]; then
     sudo cp etc/modules/02_vendor_intel.conf /etc/modprobe.d/
   else
     sudo cp etc/modules/02_vendor_amd.conf /etc/modprobe.d/
@@ -344,6 +347,7 @@ harden_parts() {
   sudo passwd -l root
 
   # Harden sshd
+  sudo sed -i "s/^#Port.*/Port 18500/g"  /etc/ssh/sshd_config
   sudo sed -i "s/^#PermitRootLogin.*/PermitRootLogin no/g"  /etc/ssh/sshd_config
 
   # Harden sysctl
@@ -357,7 +361,22 @@ harden_parts() {
 
   # Harden Systemd services
   sudo sed -i "s/^#SystemCallArchitectures=/SystemCallArchitectures=native/g" /etc/systemd/system.conf
+
   sudo cp -R usr/lib/systemd/system/ /usr/lib/systemd/
+
+  if [[ -n "${is_intel_gpu}" ]]; then
+    sudo cp usr/lib/systemd/system-optional/upower.service /usr/lib/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/thermald.service /usr/lib/systemd/system/
+  fi
+
+  if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
+    sudo cp usr/lib/systemd/system-optional/optimus-manager.service /usr/lib/systemd/system/
+  fi
+
+  if [[ "${has_tpm}" == 2 ]]; then
+    sudo cp usr/lib/systemd/system-optional/tpm2-abrmd.service /usr/lib/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/pcscd.service /usr/lib/systemd/system/
+  fi
 
   # Harden file permissions (2/2)
   sudo chmod -R 700 /etc/NetworkManager/ /etc/openvpn/ /usr/lib/NetworkManager/ /usr/lib/openvpn/
@@ -382,6 +401,10 @@ harden_parts() {
 
   # Setup .bash_profile
   cp tilde/bash_profile ~/.bash_profile
+
+  # Setup .bashrc
+  sudo cp tilde/bashrc /etc/skel/.bashrc
+  cp tilde/bashrc ~/.bashrc
 
   # Setup .xinitrc
   cp tilde/xinitrc ~/.xinitrc

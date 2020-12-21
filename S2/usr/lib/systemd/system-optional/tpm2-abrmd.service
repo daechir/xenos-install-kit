@@ -1,0 +1,45 @@
+[Unit]
+Description=TPM2 Access Broker and Resource Management Daemon
+After=systemd-udev-settle.service
+Requires=systemd-udev-settle.service
+# This condition is needed when using the device TCTI. If the
+# TCP mssim is used then the condition should be commented out.
+ConditionPathExistsGlob=/dev/tpm*
+
+[Service]
+Type=dbus
+BusName=com.intel.tss2.Tabrmd
+StandardOutput=syslog
+ExecStart=/usr/bin/tpm2-abrmd
+User=tss
+
+CapabilityBoundingSet=
+#DevicePolicy=strict
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+#PrivateDevices=yes
+PrivateMounts=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+PrivateUsers=yes
+#ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectProc=invisible
+ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+IPAddressDeny=any
+
+[Install]
+WantedBy=multi-user.target

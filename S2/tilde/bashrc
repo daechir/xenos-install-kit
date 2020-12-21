@@ -1,0 +1,31 @@
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# Disable at-spi* or accessibility
+NO_GAIL=1
+NO_AT_BRIDGE=1
+export NO_GAIL NO_AT_BRIDGE
+
+# Disable .bash_history
+HISTFILE=/dev/null
+HISTFILESIZE=0
+HISTSIZE=0
+export HISTFILE HISTFILESIZE HISTSIZE
+
+# Disable .lesshst
+LESSHISTFILE=/dev/null
+LESSHISTSIZE=0
+export LESSHISTFILE LESSHISTSIZE
+
+# Harden LESS
+SYSTEMD_PAGERSECURE=1
+LESSSECURE=1
+export SYSTEMD_PAGERSECURE LESSSECURE
+
+# Enhance terminal
+PROMPT_COMMAND='echo -en "\033]0; ${USER} @ ${PWD##*/} \a"'
+PS1='\n\e[0;36m\w\e[m\n>'

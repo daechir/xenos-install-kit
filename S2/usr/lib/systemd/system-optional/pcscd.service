@@ -1,0 +1,39 @@
+[Unit]
+Description=PC/SC Smart Card Daemon
+Requires=pcscd.socket
+Documentation=man:pcscd(8)
+
+[Service]
+ExecStart=/usr/bin/pcscd --foreground --auto-exit
+ExecReload=/usr/bin/pcscd --hotplug
+
+CapabilityBoundingSet=
+DevicePolicy=closed
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateMounts=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+PrivateUsers=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectProc=invisible
+ProtectSystem=full
+RestrictAddressFamilies=AF_UNIX AF_NETLINK
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+IPAddressDeny=any
+
+[Install]
+Also=pcscd.socket
