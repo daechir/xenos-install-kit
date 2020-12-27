@@ -91,10 +91,12 @@ setup_drive() {
   # Generate new GPT headers on the drive
   sgdisk -a 2048 -o "${drive}"
 
-  #Partition				Size			Type						Code
-  #-----------------------------------------------------------------------
-  #/dev/sdx1				1G  			EFI                         ef00
-  #/dev/sdx2				100%FREE		Linux LUKS                  8300
+  ###########################################################
+  # Partition      Size          Type                  Code #
+  #---------------------------------------------------------#
+  # /dev/sdx1      1G            EFI                   ef00 #
+  # /dev/sdx2      100%FREE      Linux LUKS            8300 #
+  ###########################################################
 
   # Create the drive partitions
   sgdisk -n 1:0:+1G "${drive}"

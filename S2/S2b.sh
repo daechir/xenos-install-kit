@@ -280,11 +280,13 @@ misc_fixes() {
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
   # Setup our specific CRDA region
-  echo -e "# Set CRDA region\noptions cfg80211 ieee80211_regdom=${crda_region}" | sudo tee -a /etc/modprobe.d/01_vendor_any.conf > /dev/null
+  sed -i "s/^# crda_region/options cfg80211 ieee80211_regdom=${crda_region}/g" etc/modules/01_vendor_any.conf
   sudo sed -i "s/^#WIRELESS_REGDOM=\"${crda_region}\"/WIRELESS_REGDOM=\"${crda_region}\"/g" /etc/conf.d/wireless-regdom
   echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
 
   # Setup our modprobe.d driver customizations
+  sudo cp etc/modules/01_vendor_any.conf /etc/modprobe.d/
+
   if [[ -n "${is_intel_gpu}" ]]; then
     sudo cp etc/modules/02_vendor_intel.conf /etc/modprobe.d/
   else
