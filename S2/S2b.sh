@@ -90,7 +90,7 @@ install_essentials() {
   # Office
   core_pack="${core_pack} howl libreoffice-fresh mupdf"
   # Security
-  core_pack="${core_pack} haveged opendoas pwgen rng-tools veracrypt"
+  core_pack="${core_pack} haveged opendoas pwgen rng-tools"
   # Soft dependencies not linked in core packages
   core_pack="${core_pack} gnome-keyring gnome-themes-extra gtk-engine-murrine"
   # Themeing

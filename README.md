@@ -2,21 +2,18 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 12/27/20 <br/>
-Version: v2z1
+Modified Date: 01/13/21 <br/>
+Version: v2z2
 
 
 ## Changelog
-+ v2z1
-  * README.md
-    + Cleanup verbiage and tone.
-    + Add About Modprobe.d section.
-  * S1.sh
-    + Fix spacing for partition table.
++ v2z2
   * S2b.sh
-    + Make 01_vendor_any.conf a static file.
-    + Revert removal of mac80211 options from previous [commit](https://github.com/daechir/xenos-install-kit/commit/409a26ab411fa6077f8de89baa42f0aa53c551b8).
-    + Add mac80211 and ath9k_htc options to 01_vendor_any.conf.
+    + Remove
+      * Veracrypt:
+        + Requires sudo to work properly (which we uninstall).
+    + Add more modules.
+    + Add more sysctls.
 
 
 ## Purpose
