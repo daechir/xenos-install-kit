@@ -1,74 +1,110 @@
+########################################################
 #!/bin/bash
+#
 # This script serves to control DNS while using openvpn.
 #
 # Author: Daechir
 # Author URL: https://github.com/daechir
-# Modified Date: 11/06/20
-# Version: v1d
+# Modified Date: 01/17/21
+# Version: v1e
+#
+########################################################
 
 
-## Functions
-# Functions are listed by call order
-initial_vars(){
-  activated_time=$(date +"%I:%M")
-  adjusted_time=$(date --date="-59 minutes ago" +"%I:%M")
-  echo "Notice: The current lease of the openvpn connection begins at ${activated_time} and expires at ${adjusted_time}."
-
+initialize(){
+  #
+  ## Device variable prep
+  #
+  # active_device_string: a string of device data used for extraction and manipulation
+  #                       by default greps all connected devices then filters out special cases
+  #                       eg "disconnected" often refers to wireless p2p devices
+  #                          "connected (externally)" often refers to tun devices
+  # active_device_name: eg en* (ethernet) or wl* (wifi)
+  # active_device_connection_name: eg the name of the connection ("Wired connection 1" "Wifi actually sucks")
+  # active_device_domain: either init, ~. or empty
+  #
+  active_device_string=$(nmcli device | grep -i "connected" | grep -v -i "disconnected\|connected (externally)")
+  active_device_name=$(echo "${active_device_string}" | awk '{print $1}' | sed "s/^[ \t]*//;s/[ \t]*$//" | sed "/^$/d")
+  active_device_connection_name=$(echo "${active_device_string}" | awk '{$1=$2=$3=""; print $0}' | sed "s/^[ \t]*//;s/[ \t]*$//" | sed "/^$/d")
   active_device_domain="init"
 
-  connection_state="reset"
+  #
+  # Setup the active_device_name domain
+  #
+  resolvectl domain "${active_device_name}" "~."
+
+  #
+  ## Time variable prep
+  #
+  # activated_time: self explainatory
+  # adjusted_time: the activated_time +59 minutes forward (1 minute before Openvpn attempts to renew its lease automatically)
+  #
+  activated_time=$(date +"%I:%M")
+  adjusted_time=$(date --date="-59 minutes ago" +"%I:%M")
+
+  echo "Notice: The current lease of the openvpn connection begins at ${activated_time} and expires at ${adjusted_time}."
+
+  #
+  ## Loop variable prep
+  #
+  # connection_state: either init, 0, 1 or 2
+  #                   init is a control state
+  #                   0,1 are termination states
+  #                   2 is a successful state
+  #
+  connection_state="init"
 
   return 0
 }
 
-continuous_vars(){
+update_vars(){
+  #
+  ## Connection_state=0 variables
+  #
+  # security_failure: various bugs that can result in data compromise
+  # inactive_firewall: self explainatory
+  #
   security_failure=$(journalctl | grep -i "failed ap scan\|beacon\|heard\|loss\|degraded feature set" | grep -i -v "execve")
   inactive_firewall=$(systemctl status iptables | grep -i "inactive")
 
-  active_device=$(ip -o link show | awk '{print $2,$9}' | grep -i "up" | awk '{print $1}' | sed "s/://g")
-  active_tunnel=$(ip -o link show | awk '{print $2}' | sed "s/://g" | grep -i "tun")
+  #
+  ## Connection_state=1 variables
+  #
+  # active_device_connection_state: either disconnected or connected
+  # active_device_domain: either init, ~. or empty
+  # active_tunnel_name: eg tun*
+  # current_time: self explainatory
+  #
+  active_device_connection_state=$(nmcli device | grep -i "${active_device_name}" | grep -v -i "p2p" | awk '{print $3}' | sed "s/^[ \t]*//;s/[ \t]*$//" | sed "/^$/d")
 
-  # active_device_connection only needs to be set once per session
-  if [[ -n "${active_device}" && -z "${active_device_connection}" ]]; then
-    case "${active_device}" in
-      wl*)
-        active_device_connection=$(nmcli connection show --active | grep -i "wifi" | awk '{print $1,$2,$3}')
-        ;;
-      en*)
-        active_device_connection=$(nmcli connection show --active | grep -i "ethernet" | awk '{print $1,$2,$3}')
-        ;;
-    esac
+  if [[ "${active_device_domain}" == "init" || "${active_device_domain}" == "~." ]]; then
+    active_device_domain=$(resolvectl domain "${active_device_name}" | awk '{print $4}')
   fi
 
-  # active_device_domain needs to be set twice per session to ensure firstly that connectivity_state() -> setup_connectivity() fires correctly and
-  # that secondly its value is set empty so that connectivity_state() -> kill_connectivity() fires correctly
-  if [[ -n "${active_device}" && "${active_device_domain}" == "init" || -n "${active_device}" && "${active_device_domain}" == "~." ]]; then
-    active_device_domain=$(resolvectl domain "${active_device}" | awk '{print $4}')
-  fi
+  active_tunnel_name=$(nmcli device | grep -i "tun" | awk '{print $1}' | sed "s/^[ \t]*//;s/[ \t]*$//" | sed "/^$/d")
 
   current_time=$(date +"%I:%M")
 
   return 0
 }
 
-connectivity_state(){
-  ## Prepare connection_message and connection_state
-  # If the current session, regardless of the current networking state, fails any or all of the security cases then set connection_state=0
+check_connectivity_state(){
+  # If the current session fails any or all of the security cases then set connection_state=0
   if [[ -n "${security_failure}" || -n "${inactive_firewall}" ]]; then
     connection_message="A security case has failed."
     connection_state=0
     return 0
   fi
 
-  # If the ethernet or wifi is inactive but the tun is active (i.e. device connection closed itself or was killed) then set connection_state=1
-  if [[ -z "${active_device}" && -n "${active_tunnel}" ]]; then
+  # If the ethernet or wifi connection is inactive but the tun is active (i.e. device connection closed itself or was killed) then set connection_state=1
+  if [[ "${active_device_connection_state}" == "disconnected" && -n "${active_tunnel_name}" ]]; then
     connection_message="The device connection closed itself or was killed."
     connection_state=1
     return 0
   fi
 
   # If the ethernet or wifi is active, its domain is empty and the tun is inactive (i.e. tunnel closed itself or was killed) then set connection_state=1
-  if [[ -n "${active_device}" && -z "${active_device_domain}" && -z "${active_tunnel}" ]]; then
+  if [[ "${active_device_connection_state}" == "connected"  && -z "${active_device_domain}" && -z "${active_tunnel_name}" ]]; then
     connection_message="The tunnel closed itself or was killed."
     connection_state=1
     return 0
@@ -82,7 +118,7 @@ connectivity_state(){
   fi
 
   # If the ethernet or wifi is active, its domain isn't empty and the tun is active then set connection_state=2
-  if [[ -n "${active_device}" && -n "${active_device_domain}" && -n "${active_tunnel}" ]]; then
+  if [[ "${active_device_connection_state}" == "connected"  && -n "${active_device_domain}" && -n "${active_tunnel_name}" ]]; then
     connection_message="The current networking state has been setup successfully."
     connection_state=2
     return 0
@@ -91,7 +127,7 @@ connectivity_state(){
   return 0
 }
 
-kill_connectivity(){
+terminate_connectivity(){
   local xenos_device=$1
 
   if [[ -n "${xenos_device}" ]]; then
@@ -132,26 +168,26 @@ setup_connectivity(){
 
 
 ## Initialize script
-initial_vars
+initialize
 
 while :
 do
-  continuous_vars
-  connectivity_state
+  update_vars
+  check_connectivity_state
 
-  if [[ "${connection_state}" != "reset" ]]; then
+  if [[ "${connection_state}" != "init" ]]; then
     case $connection_state in
       0 | 1)
         echo "Warning: ${connection_message} Now terminating the current networking state."
-        kill_connectivity "${active_device}"
+        terminate_connectivity "${active_device_name}"
         break
         ;;
       2)
         echo "Success: ${connection_message}"
-        setup_connectivity "${active_device}" "${active_device_connection}"
-        setup_connectivity "${active_tunnel}"
-        resolvectl domain "${active_tunnel}" "~."
-        connection_state="reset"
+        setup_connectivity "${active_device_name}" "${active_device_connection_name}"
+        setup_connectivity "${active_tunnel_name}"
+        resolvectl domain "${active_tunnel_name}" "~."
+        connection_state="init"
         ;;
     esac
   fi

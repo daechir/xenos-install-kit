@@ -2,18 +2,24 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 01/13/21 <br/>
-Version: v2z2
+Modified Date: 01/17/21 <br/>
+Version: v2z3
 
 
 ## Changelog
-+ v2z2
++ v2z3
+  * README.md
+    * Convert applicable man links to man.archlinux.org.
+    * Deprecate a few sources.
   * S2b.sh
-    + Remove
-      * Veracrypt:
-        + Requires sudo to work properly (which we uninstall).
-    + Add more modules.
-    + Add more sysctls.
+    + xenos-control-dns.sh:
+      * Rename functions and variables to improve readability.
+      * Overhaul general variable behaviour to reduce complexity.
+      * Add sanitation to certain variables.
+      * Deprecate iproute2 commands and default to nmcli where applicable.
+      * Add comments to speed up debugging procedure.
+      * For more changes see the diff history.
+    * Regress some sysctl changes to fix wireless intermitency problems (eg wireless driver edge cases).
 
 
 ## Purpose
@@ -119,20 +125,19 @@ chmod +x the sh files, sudo ./S2a.sh and finally ./S2b.sh.
 + install_optionals()
   * https://github.com/jonathanio/update-systemd-resolved
   * https://wiki.archlinux.org/index.php/Systemd-resolved
-  * https://www.freedesktop.org/software/systemd/man/systemd.net-naming-scheme.html
+  * https://man.archlinux.org/man/core/systemd/systemd.net-naming-scheme.7.en
   * https://developer.gnome.org/NetworkManager/stable/
 + misc_fixes()
-  * https://www.freedesktop.org/software/systemd/man/journald.conf
+  * https://man.archlinux.org/man/core/systemd/journald.conf.5.en
   * https://wiki.archlinux.org/index.php/Apparmor
   * https://wiki.archlinux.org/index.php/Lm_sensors
-  * https://www.freedesktop.org/software/systemd/man/user.conf.d.html
+  * https://man.archlinux.org/man/core/systemd/user.conf.d.5.en
   * https://wiki.archlinux.org/index.php/Iw
 + harden_parts()
   * https://github.com/Neo23x0/auditd/blob/master/audit.rules
   * https://wiki.gnome.org/Accessibility/Documentation/GNOME2/Mechanics
   * https://wiki.archlinux.org/index.php/Security
-  * https://theprivacyguide1.github.io/linux_hardening_guide.html
-  * https://obscurix.github.io
   * https://github.com/Whonix/security-misc
-  * https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+  * https://madaidans-insecurities.github.io/guides/linux-hardening.html
+  * https://man.archlinux.org/man/core/systemd/systemd.exec.5.en
 
