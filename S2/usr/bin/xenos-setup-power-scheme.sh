@@ -1,10 +1,27 @@
 #!/bin/bash
-# This script sets up a power saving scheme without all the bloat.
+
+
+#################################################
 #
-# Author: Daechir
-# Author URL: https://github.com/daechir
-# Modified Date: 12/05/20
-# Version: v1d
+#           _______  _        _______  _______
+# |\     /|(  ____ \( (    /|(  ___  )(  ____ \
+# ( \   / )| (    \/|  \  ( || (   ) || (    \/
+#  \ (_) / | (__    |   \ | || |   | || (_____
+#   ) _ (  |  __)   | (\ \) || |   | |(_____  )
+#  / ( ) \ | (      | | \   || |   | |      ) |
+# ( /   \ )| (____/\| )  \  || (___) |/\____) |
+# |/     \|(_______/|/    )_)(_______)\_______)
+#
+#
+# This file is a part of the Xenos Install Kit.
+# It adheres to the GNU GPL license.
+#
+# https://github.com/daechir/xenos-install-kit
+#
+# © 2020-2021
+#
+#
+#################################################
 
 
 hot_remove_nvidia(){

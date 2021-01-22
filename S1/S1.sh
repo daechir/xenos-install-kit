@@ -1,3 +1,26 @@
+#################################################
+#
+#           _______  _        _______  _______ 
+# |\     /|(  ____ \( (    /|(  ___  )(  ____ \
+# ( \   / )| (    \/|  \  ( || (   ) || (    \/
+#  \ (_) / | (__    |   \ | || |   | || (_____ 
+#   ) _ (  |  __)   | (\ \) || |   | |(_____  )
+#  / ( ) \ | (      | | \   || |   | |      ) |
+# ( /   \ )| (____/\| )  \  || (___) |/\____) |
+# |/     \|(_______/|/    )_)(_______)\_______)
+#
+#
+# This file is a part of the Xenos Install Kit.
+# It adheres to the GNU GPL license.
+#
+# https://github.com/daechir/xenos-install-kit
+#
+# © 2020-2021
+#
+#
+#################################################
+
+
 #!/bin/bash
 # Print commands before executing and exit when any command fails
 set -xe

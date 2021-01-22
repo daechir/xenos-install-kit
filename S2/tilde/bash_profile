@@ -1,9 +1,29 @@
+#################################################
 #
-# ~/.bash_profile
+#           _______  _        _______  _______
+# |\     /|(  ____ \( (    /|(  ___  )(  ____ \
+# ( \   / )| (    \/|  \  ( || (   ) || (    \/
+#  \ (_) / | (__    |   \ | || |   | || (_____
+#   ) _ (  |  __)   | (\ \) || |   | |(_____  )
+#  / ( ) \ | (      | | \   || |   | |      ) |
+# ( /   \ )| (____/\| )  \  || (___) |/\____) |
+# |/     \|(_______/|/    )_)(_______)\_______)
 #
+#
+# This file is a part of the Xenos Install Kit.
+# It adheres to the GNU GPL license.
+#
+# https://github.com/daechir/xenos-install-kit
+#
+# © 2020-2021
+#
+#
+#################################################
+
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 
 if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
   exec startx -- -config ~/.local/share/xorg/00_xenos_xorg_hardening.conf -keeptty &> ~/.local/share/xorg/Xorg-stdout-stderr.log -nolisten tcp -terminate
 fi
+

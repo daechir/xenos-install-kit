@@ -1,24 +1,37 @@
-########################################################
 #!/bin/bash
+
+
+#################################################
 #
-# This script serves to control DNS while using openvpn.
+#           _______  _        _______  _______
+# |\     /|(  ____ \( (    /|(  ___  )(  ____ \
+# ( \   / )| (    \/|  \  ( || (   ) || (    \/
+#  \ (_) / | (__    |   \ | || |   | || (_____
+#   ) _ (  |  __)   | (\ \) || |   | |(_____  )
+#  / ( ) \ | (      | | \   || |   | |      ) |
+# ( /   \ )| (____/\| )  \  || (___) |/\____) |
+# |/     \|(_______/|/    )_)(_______)\_______)
 #
-# Author: Daechir
-# Author URL: https://github.com/daechir
-# Modified Date: 01/17/21
-# Version: v1e
 #
-########################################################
+# This file is a part of the Xenos Install Kit.
+# It adheres to the GNU GPL license.
+#
+# https://github.com/daechir/xenos-install-kit
+#
+# © 2020-2021
+#
+#
+#################################################
 
 
 initialize(){
   #
   ## Device variable prep
   #
-  # active_device_string: a string of device data used for extraction and manipulation
+  # active_device_string: a string of device data used for manipulation
   #                       by default greps all connected devices then filters out special cases
   #                       eg "disconnected" often refers to wireless p2p devices
-  #                          "connected (externally)" often refers to tun devices
+  #                          "connected (externally)" often refers to tap/tun devices
   # active_device_name: eg en* (ethernet) or wl* (wifi)
   # active_device_connection_name: eg the name of the connection ("Wired connection 1" "Wifi actually sucks")
   # active_device_domain: either init, ~. or empty
@@ -61,7 +74,7 @@ update_vars(){
   #
   ## Connection_state=0 variables
   #
-  # security_failure: various bugs that can result in data compromise
+  # security_failure: various bugs that can result in data compromises
   # inactive_firewall: self explainatory
   #
   security_failure=$(journalctl | grep -i "failed ap scan\|beacon\|heard\|loss\|degraded feature set" | grep -i -v "execve")
@@ -89,7 +102,7 @@ update_vars(){
 }
 
 check_connectivity_state(){
-  # If the current session fails any or all of the security cases then set connection_state=0
+  # If the current session fails any of the security cases or the firewall is inactive then set connection_state=0
   if [[ -n "${security_failure}" || -n "${inactive_firewall}" ]]; then
     connection_message="A security case has failed."
     connection_state=0
@@ -103,7 +116,7 @@ check_connectivity_state(){
     return 0
   fi
 
-  # If the ethernet or wifi is active, its domain is empty and the tun is inactive (i.e. tunnel closed itself or was killed) then set connection_state=1
+  # If the ethernet or wifi connection is active, its domain is empty and the tun is inactive (i.e. tunnel closed itself or was killed) then set connection_state=1
   if [[ "${active_device_connection_state}" == "connected"  && -z "${active_device_domain}" && -z "${active_tunnel_name}" ]]; then
     connection_message="The tunnel closed itself or was killed."
     connection_state=1
@@ -117,7 +130,7 @@ check_connectivity_state(){
     return 0
   fi
 
-  # If the ethernet or wifi is active, its domain isn't empty and the tun is active then set connection_state=2
+  # If the ethernet or wifi connection is active, its domain isn't empty and the tun is active then set connection_state=2
   if [[ "${active_device_connection_state}" == "connected"  && -n "${active_device_domain}" && -n "${active_tunnel_name}" ]]; then
     connection_message="The current networking state has been setup successfully."
     connection_state=2

@@ -1,3 +1,26 @@
+#################################################
+#
+#           _______  _        _______  _______
+# |\     /|(  ____ \( (    /|(  ___  )(  ____ \
+# ( \   / )| (    \/|  \  ( || (   ) || (    \/
+#  \ (_) / | (__    |   \ | || |   | || (_____
+#   ) _ (  |  __)   | (\ \) || |   | |(_____  )
+#  / ( ) \ | (      | | \   || |   | |      ) |
+# ( /   \ )| (____/\| )  \  || (___) |/\____) |
+# |/     \|(_______/|/    )_)(_______)\_______)
+#
+#
+# This file is a part of the Xenos Install Kit.
+# It adheres to the GNU GPL license.
+#
+# https://github.com/daechir/xenos-install-kit
+#
+# © 2020-2021
+#
+#
+#################################################
+
+
 #!/bin/bash
 # Print commands before executing and exit when any command fails
 set -xe
@@ -188,19 +211,34 @@ toggle_systemctl() {
     "alsa-state.service"
     "avahi-daemon.service"
     "avahi-dnsconfd.service"
+    "colord.service"
     "emergency.service"
+    "NetworkManager-dispatcher.service"
+    "NetworkManager-wait-online.service"
     "rescue.service"
     "systemd-coredump@.service"
     "systemd-hibernate-resume@.service"
     "systemd-hibernate.service"
+    "systemd-homed-activate.service"
     "systemd-homed.service"
     "systemd-hybrid-sleep.service"
+    "systemd-journal-remote.service"
+    "systemd-journal-upload.service"
+    "systemd-network-generator.service"
+    "systemd-networkd-wait-online.service"
+    "systemd-networkd.service"
+    "systemd-portabled.service"
     "systemd-rfkill.service"
     "systemd-suspend-then-hibernate.service"
     "systemd-suspend.service"
+    "systemd-time-wait-sync.service"
+    "systemd-timedated.service"
+    "systemd-timesyncd.service"
     "systemd-userdbd.service"
     "avahi-daemon.socket"
     "systemd-coredump.socket"
+    "systemd-journal-remote.socket"
+    "systemd-networkd.socket"
     "systemd-rfkill.socket"
     "systemd-userdbd.socket"
     "bluetooth.target"
@@ -280,7 +318,7 @@ misc_fixes() {
   sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
   # Setup our specific CRDA region
-  sed -i "s/^# crda_region/options cfg80211 ieee80211_regdom=${crda_region}/g" etc/modules/01_vendor_any.conf
+  sed -i "s/ieee80211_regdom=/ieee80211_regdom=${crda_region}/g" etc/modules/01_vendor_any.conf
   sudo sed -i "s/^#WIRELESS_REGDOM=\"${crda_region}\"/WIRELESS_REGDOM=\"${crda_region}\"/g" /etc/conf.d/wireless-regdom
   echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
 
@@ -299,12 +337,10 @@ harden_parts() {
   # Harden auditd
   sudo cp etc/audit/audit.rules /etc/audit/
 
-  # Harden at-spi* or accessibility
+  # Harden at-spi* or accessibility (1/2)
   echo -e "\n# Disable at-spi* or accessibility\nNO_GAIL=1\nNO_AT_BRIDGE=1\nexport NO_GAIL NO_AT_BRIDGE" | sudo tee -a /etc/profile > /dev/null
-  sudo sed -i "d" /usr/share/dbus-1/accessibility-services/org.a11y.atspi.Registry.service
-  sudo sed -i "d" /usr/share/dbus-1/services/org.a11y.Bus.service
   sudo chmod 600 /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
-  sudo chattr +i /usr/share/dbus-1/accessibility-services/org.a11y.atspi.Registry.service /usr/share/dbus-1/services/org.a11y.Bus.service /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
+  sudo chattr +i /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
 
   # Harden consoles and ttys
   echo -e "\n+:(wheel):LOCAL\n-:ALL:ALL" | sudo tee -a /etc/security/access.conf > /dev/null
@@ -316,6 +352,27 @@ harden_parts() {
   sudo sed -i "s/^#DumpCore=yes/DumpCore=no/g" /etc/systemd/system.conf
   sudo sed -i "s/^# End of file/* hard core 0/g" /etc/security/limits.conf
   echo -e "\n# End of file" | sudo tee -a  /etc/security/limits.conf > /dev/null
+
+  # Harden dbus related items (also at-spi* or accessibility (2/2))
+  local dbusctl=(
+    "/usr/share/dbus-1/accessibility-services/org.a11y.atspi.Registry.service"
+    "/usr/share/dbus-1/services/org.a11y.Bus.service"
+    "/usr/share/dbus-1/services/org.freedesktop.ColorHelper.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.Avahi.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.ColorManager.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.home1.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.nm_dispatcher.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.portable1.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.timedate1.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.timesync1.service"
+  )
+
+  for ctl in "${dbusctl[@]}"
+  do
+    sudo sed -i "d" "${ctl}"
+    sudo chmod 600 "${ctl}"
+    sudo chattr +i "${ctl}"
+  done
 
   # Harden file permissions (1/2)
   sudo sed -i "s/^umask 022/umask 077/g" /etc/profile

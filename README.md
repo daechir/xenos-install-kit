@@ -2,24 +2,34 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 01/17/21 <br/>
-Version: v2z3
+Modified Date: 01/21/21 <br/>
+Version: v3
 
 
 ## Changelog
-+ v2z3
-  * README.md
-    * Convert applicable man links to man.archlinux.org.
-    * Deprecate a few sources.
++ v3
+  * "${filenameglob}"
+    + Add proper branding to various files.
+    + Deprecate individual file version control (Aside from those pulled from different repositories).
   * S2b.sh
+    + xenos-control-defaults.sh:
+      * Enhance control_folders() so that systemd-xdg-autostart-generator stops complaining in journal about permission problems.
+      * Also enhance control_folders() and control_mimes() to use a nested for loop.
     + xenos-control-dns.sh:
-      * Rename functions and variables to improve readability.
-      * Overhaul general variable behaviour to reduce complexity.
-      * Add sanitation to certain variables.
-      * Deprecate iproute2 commands and default to nmcli where applicable.
-      * Add comments to speed up debugging procedure.
-      * For more changes see the diff history.
-    * Regress some sysctl changes to fix wireless intermitency problems (eg wireless driver edge cases).
+      * Cleanup a few comments.
+    + Add more ctls to toggle_systemctl().
+      * This includes new restrictions to NetworkManagers functionality (which don't fit our use case anyways).
+    + 00_blacklisted.conf:
+      * Split document into LTS and non-LTS sections.
+      * Fix webcam module dependencies being initialized independently.
+      * Add more modules.
+    + 01_vendor_any.conf:
+      * Improve wireless stability by further optimizing cfg80211, mac80211 and ath9k_htc.
+    + 02_vendor_amd.conf:
+      * Add snd_*_acp3x blacklist.
+      * Add amdgpu option to turn off vague "audio subsystem" by default.
+    + Add a section which removes unused dbus services from busctl to harden_parts().
+    + Apply upstream fix to tpm2-abrmd.service.
 
 
 ## Purpose
@@ -79,7 +89,10 @@ Full Disk Encryption <br/>
 Isolated or Sandboxed Systemd Services <br/>
 Kernel CPU Mitigations <br/>
 Kernel Module Restrictions <br/>
-Kernel Hardening and Optimizations <br/><br/>
+Kernel Hardening and Optimizations <br/>
+Unique Independently Created Service Files and Scripts <br/>
+Restricted Dbus services <br/>
+Restricted Xorg server <br/><br/>
 And much much more.
 
 
@@ -140,4 +153,5 @@ chmod +x the sh files, sudo ./S2a.sh and finally ./S2b.sh.
   * https://github.com/Whonix/security-misc
   * https://madaidans-insecurities.github.io/guides/linux-hardening.html
   * https://man.archlinux.org/man/core/systemd/systemd.exec.5.en
+
 

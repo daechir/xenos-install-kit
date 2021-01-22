@@ -1,15 +1,13 @@
 [Unit]
 Description=TPM2 Access Broker and Resource Management Daemon
-After=systemd-udev-settle.service
-Requires=systemd-udev-settle.service
-# This condition is needed when using the device TCTI. If the
-# TCP mssim is used then the condition should be commented out.
-ConditionPathExistsGlob=/dev/tpm*
+# These settings are needed when using the device TCTI. If the
+# TCP mssim is used then the settings should be commented out.
+After=dev-tpm0.device
+Requires=dev-tpm0.device
 
 [Service]
 Type=dbus
 BusName=com.intel.tss2.Tabrmd
-StandardOutput=syslog
 ExecStart=/usr/bin/tpm2-abrmd
 User=tss
 

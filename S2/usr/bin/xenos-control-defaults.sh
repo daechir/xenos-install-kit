@@ -1,51 +1,77 @@
 #!/bin/bash
-# This script serves to control several annoyances that are shipped preconfigured in Arch Linux.
+
+
+#################################################
 #
-# Author: Daechir
-# Author URL: https://github.com/daechir
-# Modified Date: 10/20/20
-# Version: v1d
+#           _______  _        _______  _______
+# |\     /|(  ____ \( (    /|(  ___  )(  ____ \
+# ( \   / )| (    \/|  \  ( || (   ) || (    \/
+#  \ (_) / | (__    |   \ | || |   | || (_____
+#   ) _ (  |  __)   | (\ \) || |   | |(_____  )
+#  / ( ) \ | (      | | \   || |   | |      ) |
+# ( /   \ )| (____/\| )  \  || (___) |/\____) |
+# |/     \|(_______/|/    )_)(_______)\_______)
+#
+#
+# This file is a part of the Xenos Install Kit.
+# It adheres to the GNU GPL license.
+#
+# https://github.com/daechir/xenos-install-kit
+#
+# © 2020-2021
+#
+#
+#################################################
 
 
 control_folders(){
   local folders=(
-    "/etc/NetworkManager/conf.d/"
-    "/etc/xdg/autostart/"
-    "/usr/lib/NetworkManager/conf.d/"
-    "/usr/lib/sysctl.d/"
-    "/usr/share/X11/xorg.conf.d/"
+    "/etc/NetworkManager/conf.d/*"
+    "/etc/NetworkManager/dispatcher.d/*"
+    "/etc/NetworkManager/dnsmasq-shared.d/*"
+    "/etc/NetworkManager/dnsmasq.d/*"
+    "/etc/xdg/autostart/*"
+    "/usr/lib/NetworkManager/conf.d/*"
+    "/usr/lib/NetworkManager/dispatcher.d/*"
+    "/usr/lib/sysctl.d/*"
+    "/usr/share/X11/xorg.conf.d/*"
   )
 
   for folder in "${folders[@]}"
   do
-    rm -rf "${folder}"
-    mkdir "${folder}"
+    for item in $folder
+    do
+      if [[ -f "${item}" ]]; then
+        rm -f "${item}"
+      fi
+
+      if [[ -d "${item}" ]]; then
+        rm -rf "${item}"
+      fi
+    done
   done
 
   return 0
 }
 
 control_mimes(){
-  local mimefiles1=/usr/share/applications/*
-  local mimefiles2=/usr/lib/libreoffice/share/xdg/*
-  local mimefilesgrep="reset"
+  local mimefolders=(
+    "/usr/share/applications/*"
+    "/usr/lib/libreoffice/share/xdg/*"
+  )
 
-  for mime in $mimefiles1
+  for mime in "${mimefolders[@]}"
   do
-    mimefilesgrep=$(grep -i "MimeType" "${mime}")
+    for mimefile in $mime
+    do
+      if [[ -f "${mimefile}" ]]; then
+        local mimefilegrep=$(grep -i "MimeType" "${mimefile}")
 
-    if [[ -n "${mimefilesgrep}" ]]; then
-      sed -i "s/^MimeType=.*/MimeType=/g" "${mime}"
-    fi
-  done
-
-  for mime in $mimefiles2
-  do
-    mimefilesgrep=$(grep -i "MimeType" "${mime}")
-
-    if [[ -n "${mimefilesgrep}" ]]; then
-      sed -i "s/^MimeType=.*/MimeType=/g" "${mime}"
-    fi
+        if [[ -n "${mimefilegrep}" ]]; then
+          sed -i "s/^MimeType=.*/MimeType=/g" "${mimefile}"
+        fi
+      fi
+    done
   done
 
   update-desktop-database
