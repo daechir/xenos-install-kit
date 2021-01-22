@@ -1,3 +1,6 @@
+#!/bin/bash
+
+
 #################################################
 #
 #           _______  _        _______  _______
@@ -21,7 +24,6 @@
 #################################################
 
 
-#!/bin/bash
 # Print commands before executing and exit when any command fails
 set -xe
 
