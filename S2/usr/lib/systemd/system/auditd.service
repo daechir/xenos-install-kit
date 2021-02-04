@@ -46,6 +46,7 @@ ProtectKernelModules=yes
 ProtectKernelTunables=yes
 ProtectKernelLogs=yes
 ProtectProc=invisible
+ProcSubset=pid
 ProtectSystem=full
 RestrictAddressFamilies=AF_UNIX AF_NETLINK
 RestrictNamespaces=yes
@@ -55,6 +56,7 @@ SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
 IPAddressDeny=any
+UMask=0077
 
 [Install]
 WantedBy=multi-user.target

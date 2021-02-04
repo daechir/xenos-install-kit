@@ -2,34 +2,26 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 01/21/21 <br/>
-Version: v3
+Modified Date: 02/04/21 <br/>
+Version: v3a
 
 
 ## Changelog
-+ v3
-  * "${filenameglob}"
-    + Add proper branding to various files.
-    + Deprecate individual file version control (Aside from those pulled from different repositories).
++ v3a
+  * S1.sh
+    + systemdboot_options
+      * Add:
+        + Biosdevname
+        + Net.ifnames
+    + Deprecate manual update of /etc/pacman.d/mirrorlist.
+      * Reflector has been added to the archiso for such a purpose.
   * S2b.sh
-    + xenos-control-defaults.sh:
-      * Enhance control_folders() so that systemd-xdg-autostart-generator stops complaining in journal about permission problems.
-      * Also enhance control_folders() and control_mimes() to use a nested for loop.
-    + xenos-control-dns.sh:
-      * Cleanup a few comments.
-    + Add more ctls to toggle_systemctl().
-      * This includes new restrictions to NetworkManagers functionality (which don't fit our use case anyways).
-    + 00_blacklisted.conf:
-      * Split document into LTS and non-LTS sections.
-      * Fix webcam module dependencies being initialized independently.
-      * Add more modules.
-    + 01_vendor_any.conf:
-      * Improve wireless stability by further optimizing cfg80211, mac80211 and ath9k_htc.
-    + 02_vendor_amd.conf:
-      * Add snd_*_acp3x blacklist.
-      * Add amdgpu option to turn off vague "audio subsystem" by default.
-    + Add a section which removes unused dbus services from busctl to harden_parts().
-    + Apply upstream fix to tpm2-abrmd.service.
+    + core_pack
+      * Add
+        + libsecret
+    + Add ProcSubset=pid and UMask=0077 to various service files.
+    + Store all customized services files in /etc/systemd/system instead.
+    + Remove deprecated /etc/pam.d/doas umask rule.
 
 
 ## Purpose

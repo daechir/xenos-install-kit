@@ -89,6 +89,7 @@ systemdboot_options="${systemdboot_options} nowatchdog"
 systemdboot_options="${systemdboot_options} nohibernate"
 systemdboot_options="${systemdboot_options} oops=panic"
 systemdboot_options="${systemdboot_options} systemd.dump_core=0"
+systemdboot_options="${systemdboot_options} biosdevname=0 net.ifnames=0"
 systemdboot_options="${systemdboot_options} cryptdevice=/dev/${volume}/root:root:allow-discards root=/dev/mapper/root"
 systemdboot_options="${systemdboot_options} quiet rw"
 systemdboot_entry="${systemdboot_entry} ${systemdboot_options}"
@@ -153,15 +154,6 @@ setup_drive() {
 
 
 setup_system() {
-  # Update /etc/pacman.d/mirrorlist automatically
-  pacman -Syy
-  pacman -S --noconfirm pacman-contrib
-  curl -o mirrorlist.pre "${mirror_list}"
-  sed -i "s/^#Server/Server/g" mirrorlist.pre
-  rankmirrors -n 8 mirrorlist.pre > mirrorlist
-  cp mirrorlist /etc/pacman.d/
-  pacman -Syy
-
   # Begin pacstrap
   pacstrap /mnt $core_pack
 

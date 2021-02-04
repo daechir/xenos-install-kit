@@ -26,6 +26,7 @@ ProtectHostname=yes
 #ProtectKernelTunables=yes
 #ProtectKernelLogs=yes
 #ProtectProc=invisible
+#ProcSubset=pid
 #ProtectSystem=strict
 RestrictAddressFamilies=AF_UNIX AF_NETLINK
 RestrictNamespaces=yes
@@ -35,6 +36,7 @@ SystemCallArchitectures=native
 SystemCallFilter=@system-service @mount
 SystemCallErrorNumber=EPERM
 IPAddressDeny=any
+UMask=0077
 
 [Install]
 WantedBy=graphical.target

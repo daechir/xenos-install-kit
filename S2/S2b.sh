@@ -30,9 +30,9 @@ set -xe
 
 # Variables
 cputhreads=$(nproc)
-is_amd_gpu=$(lspci | grep -e VGA -e 3D | grep -i "amd" 2> /dev/null || echo "")
-is_intel_gpu=$(lspci | grep -e VGA -e 3D | grep -i "intel" 2> /dev/null || echo "")
-is_nvidia_gpu=$(lspci | grep -e VGA -e 3D | grep -i "nvidia" 2> /dev/null || echo "")
+is_amd_gpu=$(lspci | grep -i "vga\|3d" | grep -i "amd" 2> /dev/null || echo "")
+is_intel_gpu=$(lspci | grep -i "vga\|3d" | grep -i "intel" 2> /dev/null || echo "")
+is_nvidia_gpu=$(lspci | grep -i "vga\|3d" | grep -i "nvidia" 2> /dev/null || echo "")
 install_nvidia=""
 install_optimus=""
 has_tpm=$(cat /sys/class/tpm/tpm0/tpm_version_major 2> /dev/null || echo "")
@@ -117,7 +117,7 @@ install_essentials() {
   # Security
   core_pack="${core_pack} haveged opendoas pwgen rng-tools"
   # Soft dependencies not linked in core packages
-  core_pack="${core_pack} gnome-keyring gnome-themes-extra gtk-engine-murrine"
+  core_pack="${core_pack} gnome-keyring gnome-themes-extra gtk-engine-murrine libsecret"
   # Themeing
   core_pack="${core_pack} arc-gtk-theme papirus-icon-theme ttf-roboto xcursor-vanilla-dmz"
   # Thermald
@@ -186,7 +186,6 @@ install_optionals() {
   sudo cp usr/bin/xenos-control-defaults.sh /usr/bin/
   sudo chmod 700 /usr/bin/xenos-control-defaults.sh
   sudo cp etc/systemd/system/xenos-control-defaults.service /etc/systemd/system/
-  sudo chmod 644 /etc/systemd/system/xenos-control-defaults.service
 
   # Setup xenos-control-dns
   sudo cp usr/bin/xenos-control-dns.sh /usr/bin/
@@ -196,7 +195,6 @@ install_optionals() {
   sudo cp usr/bin/xenos-setup-power-scheme.sh /usr/bin/
   sudo chmod 700 /usr/bin/xenos-setup-power-scheme.sh
   sudo cp etc/systemd/system/xenos-setup-power-scheme.service /etc/systemd/system/
-  sudo chmod 644 /etc/systemd/system/xenos-setup-power-scheme.service
 
   # Setup xenos-* as immutable
   sudo chattr +i /usr/bin/xenos-control-defaults.sh /usr/bin/xenos-control-dns.sh /usr/bin/xenos-setup-power-scheme.sh
@@ -363,6 +361,7 @@ harden_parts() {
     "/usr/share/dbus-1/system-services/org.freedesktop.Avahi.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.ColorManager.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.home1.service"
+    "/usr/share/dbus-1/system-services/org.freedesktop.network1.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.nm_dispatcher.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.portable1.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.timedate1.service"
@@ -376,9 +375,8 @@ harden_parts() {
     sudo chattr +i "${ctl}"
   done
 
-  # Harden file permissions (1/2)
+  # Harden file permissions (1/3)
   sudo sed -i "s/^umask 022/umask 077/g" /etc/profile
-  sudo sed -i "s/umask=022/umask=077/g" /etc/pam.d/doas
 
   # Harden history file creation
   echo -e "\n# Disable .bash_history\nHISTFILE=/dev/null\nHISTFILESIZE=0\nHISTSIZE=0\nexport HISTFILE HISTFILESIZE HISTSIZE" | sudo tee -a /etc/profile > /dev/null
@@ -423,23 +421,23 @@ harden_parts() {
   # Harden Systemd services
   sudo sed -i "s/^#SystemCallArchitectures=/SystemCallArchitectures=native/g" /etc/systemd/system.conf
 
-  sudo cp -R usr/lib/systemd/system/ /usr/lib/systemd/
+  sudo cp -R usr/lib/systemd/system/ /etc/systemd/
 
   if [[ -n "${is_intel_gpu}" ]]; then
-    sudo cp usr/lib/systemd/system-optional/upower.service /usr/lib/systemd/system/
-    sudo cp usr/lib/systemd/system-optional/thermald.service /usr/lib/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/upower.service /etc/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/thermald.service /etc/systemd/system/
   fi
 
   if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
-    sudo cp usr/lib/systemd/system-optional/optimus-manager.service /usr/lib/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/optimus-manager.service /etc/systemd/system/
   fi
 
   if [[ "${has_tpm}" == 2 ]]; then
-    sudo cp usr/lib/systemd/system-optional/tpm2-abrmd.service /usr/lib/systemd/system/
-    sudo cp usr/lib/systemd/system-optional/pcscd.service /usr/lib/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/tpm2-abrmd.service /etc/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/pcscd.service /etc/systemd/system/
   fi
 
-  # Harden file permissions (2/2)
+  # Harden file permissions (2/3)
   sudo chmod -R 700 /etc/NetworkManager/ /etc/openvpn/ /usr/lib/NetworkManager/ /usr/lib/openvpn/
 
   # Harden mount options
@@ -451,8 +449,10 @@ harden_parts() {
   echo "tmpfs /dev/shm tmpfs defaults,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
   sudo mkdir /etc/systemd/system/systemd-logind.service.d/
   echo -e "[Service]\nSupplementaryGroups=proc" | sudo tee -a  /etc/systemd/system/systemd-logind.service.d/00_hide_pid.conf  > /dev/null
-  sudo chmod -R 644 /etc/systemd/system/systemd-logind.service.d/
   echo "proc /proc proc noatime,nosuid,nodev,noexec,hidepid=2,gid=proc 0 0" | sudo tee -a  /etc/fstab > /dev/null
+
+  # Harden file permissions (3/3)
+  sudo find /etc/systemd/system/ -type f -exec chmod 644 {} \;
 
   # Harden xorg
   mkdir ~/.local/
@@ -474,7 +474,7 @@ harden_parts() {
   echo "permit :wheel" | sudo tee -a /etc/doas.conf > /dev/null
 
   # Remove unused packages
-  sudo pacman -R --noconfirm dhcpcd sudo
+  sudo pacman -Rns --noconfirm dhcpcd sudo
 }
 
 
