@@ -2,26 +2,37 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 02/04/21 <br/>
-Version: v3a
+Modified Date: 02/*/21 <br/>
+Version: v3b
 
 
 ## Changelog
-+ v3a
++ v3b
   * S1.sh
-    + systemdboot_options
-      * Add:
-        + Biosdevname
-        + Net.ifnames
-    + Deprecate manual update of /etc/pacman.d/mirrorlist.
-      * Reflector has been added to the archiso for such a purpose.
+    + Remove unused variable mirror_list (Forgot to remove it in prior push).
   * S2b.sh
-    + core_pack
-      * Add
-        + libsecret
-    + Add ProcSubset=pid and UMask=0077 to various service files.
-    + Store all customized services files in /etc/systemd/system instead.
-    + Remove deprecated /etc/pam.d/doas umask rule.
+    + core_pack:
+      * Deprecate firefox.
+        + Over the course of the last year or so Mozilla (More specificly its current CEO and upper management) has made some very poor decisions at the behest of greed and corporation influence. To be fair its also gotten far too bloated as a web browser anyways and is behind on removing deprecated features.
+      * Add brave-bin.
+        + Though not in the official repositories (yet) it's probably one of the safer options with minimal workflow loss.
+    + xenos-control-dns.sh:
+      * Apply a workaround for brave-bin causing a non-intended security failure.
+    + /etc/modules/*:
+      * Move all files, except 00_whitelisted.conf, into /etc/modprobe.d.
+      * Move 00_whitelisted.conf into /etc/modules-load.d.
+    + /etc/modprobe.d/*:
+      * Split 00_blacklisted.conf into seperate files.
+      * Update all file section(s) using a new automatic method.
+    + /etc/modules-load.d/*:
+      * Add ath9k_htc to 00_whitelisted.conf.
+        + Hotplug events don't set the module up properly.
+    + /etc/systemd/system.conf:
+      * Add further restrictions to coredumps.
+    + /etc/security/limits.conf:
+      * Restrict the number of maxsyslogins to 1.
+    + /etc/fstab:
+      * Change ext4 to xfs.
 
 
 ## Purpose

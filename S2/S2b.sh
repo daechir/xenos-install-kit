@@ -128,8 +128,6 @@ install_essentials() {
   if [[ "${has_tpm}" == 2 ]]; then
     core_pack="${core_pack} ccid opensc tpm2-abrmd tpm2-pkcs11 tpm2-tools"
   fi
-  # Web Browser
-  core_pack="${core_pack} firefox"
 
   ### Begin install
   # Force archlinux-keyring refresh
@@ -143,6 +141,12 @@ install_essentials() {
   cd 2bwm-git
   sed -i "22 a cp ../../2bwm-tweaks/config.h ../src/2bwm-git/" PKGBUILD
   sed -i "23 a cp ../../2bwm-tweaks/definitions.h ../src/2bwm-git/" PKGBUILD
+  makepkg -csi --noconfirm
+  cd ..
+
+  # Web Browser
+  git clone https://aur.archlinux.org/brave-bin.git
+  cd brave-bin
   makepkg -csi --noconfirm
   cd ..
 }
@@ -314,21 +318,21 @@ misc_fixes() {
   sudo sensors-detect --auto
 
   # Fix systemd shutdown hanging issue
-  sudo sed -i "s/^#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
-  sudo sed -i "s/^#DefaultTimeoutStartSec=90s/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
+  sudo sed -i "s/^#DefaultTimeoutStopSec=.*/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
+  sudo sed -i "s/^#DefaultTimeoutStartSec=.*/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
   # Setup our specific CRDA region
-  sed -i "s/ieee80211_regdom=/ieee80211_regdom=${crda_region}/g" etc/modules/01_vendor_any.conf
+  sed -i "s/ieee80211_regdom=/ieee80211_regdom=${crda_region}/g" etc/modprobe.d/optional/10_vendor_any.conf
   sudo sed -i "s/^#WIRELESS_REGDOM=\"${crda_region}\"/WIRELESS_REGDOM=\"${crda_region}\"/g" /etc/conf.d/wireless-regdom
   echo -e "# Set CRDA region\ncountry=${crda_region}" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null
 
   # Setup our modprobe.d driver customizations
-  sudo cp etc/modules/01_vendor_any.conf /etc/modprobe.d/
+  sudo cp etc/modprobe.d/optional/10_vendor_any.conf /etc/modprobe.d/
 
   if [[ -n "${is_intel_gpu}" ]]; then
-    sudo cp etc/modules/02_vendor_intel.conf /etc/modprobe.d/
+    sudo cp etc/modprobe.d/optional/11_vendor_intel.conf /etc/modprobe.d/
   else
-    sudo cp etc/modules/02_vendor_amd.conf /etc/modprobe.d/
+    sudo cp etc/modprobe.d/optional/11_vendor_amd.conf /etc/modprobe.d/
   fi
 }
 
@@ -349,9 +353,10 @@ harden_parts() {
   # Harden coredumps
   sudo sed -i "1,12!d" /etc/systemd/coredump.conf
   echo -e "\n[Coredump]\nStorage=none\nProcessSizeMax=0" | sudo tee -a  /etc/systemd/coredump.conf > /dev/null
-  sudo sed -i "s/^#DumpCore=yes/DumpCore=no/g" /etc/systemd/system.conf
+  sudo sed -i "s/^#CrashShell=.*/CrashShell=no/g" /etc/systemd/system.conf
+  sudo sed -i "s/^#DefaultLimitCORE=/DefaultLimitCORE=0/g" /etc/systemd/system.conf
+  sudo sed -i "s/^#DumpCore=.*/DumpCore=no/g" /etc/systemd/system.conf
   sudo sed -i "s/^# End of file/* hard core 0/g" /etc/security/limits.conf
-  echo -e "\n# End of file" | sudo tee -a  /etc/security/limits.conf > /dev/null
 
   # Harden dbus related items (also at-spi* or accessibility (2/2))
   local dbusctl=(
@@ -385,11 +390,17 @@ harden_parts() {
   # Harden less
   echo -e "\n# Harden LESS\nSYSTEMD_PAGERSECURE=1\nLESSSECURE=1\nexport SYSTEMD_PAGERSECURE LESSSECURE" | sudo tee -a /etc/profile > /dev/null
 
+  # Harden maxsyslogins
+  echo -e "* hard maxsyslogins 1\n\n# End of file" | sudo tee -a  /etc/security/limits.conf > /dev/null
+
   ## Harden modules
-  # Kernel level
-  sudo cp etc/modules/00_blacklisted.conf  /etc/modprobe.d/
-  # Systemd level
-  sudo cp etc/modules/00_whitelisted.conf /etc/modules-load.d/
+  # Early boot (Kernel init)
+  for modprobe in etc/modprobe.d/required/*
+  do
+    sudo cp "${modprobe}" /etc/modprobe.d/
+  done
+  # Later boot (Systemd udevd)
+  sudo cp etc/modules-load.d/00_whitelisted.conf /etc/modules-load.d/
 
   ## Harden pam.d
   # Password hashing, make dictionary attacks harder
@@ -413,10 +424,10 @@ harden_parts() {
   sudo cp etc/00_xenos_hardening.conf /etc/sysctl.d/
 
   # Harden Systemd sleep
-  sudo sed -i "s/^#AllowSuspend=yes/AllowSuspend=no/g" /etc/systemd/sleep.conf
-  sudo sed -i "s/^#AllowHibernation=yes/AllowHibernation=no/g" /etc/systemd/sleep.conf
-  sudo sed -i "s/^#AllowSuspendThenHibernate=yes/AllowSuspendThenHibernate=no/g" /etc/systemd/sleep.conf
-  sudo sed -i "s/^#AllowHybridSleep=yes/AllowHybridSleep=no/g" /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowSuspend=.*/AllowSuspend=no/g" /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowHibernation=.*/AllowHibernation=no/g" /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowSuspendThenHibernate=.*/AllowSuspendThenHibernate=no/g" /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowHybridSleep=.*/AllowHybridSleep=no/g" /etc/systemd/sleep.conf
 
   # Harden Systemd services
   sudo sed -i "s/^#SystemCallArchitectures=/SystemCallArchitectures=native/g" /etc/systemd/system.conf
@@ -443,8 +454,8 @@ harden_parts() {
   # Harden mount options
   sudo sed -i "6 s/rw,relatime/defaults,noatime/g" /etc/fstab
   sudo sed -i "9 s/rw,relatime,fmask=0022,dmask=0022/defaults,noatime,nosuid,nodev,noexec,fmask=0077,dmask=0077/g" /etc/fstab
-  echo -e "\n/var /var ext4 defaults,bind,noatime,nosuid,nodev 0 0" | sudo tee -a  /etc/fstab > /dev/null
-  echo "/home /home ext4 defaults,bind,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
+  echo -e "\n/var /var xfs defaults,bind,noatime,nosuid,nodev 0 0" | sudo tee -a  /etc/fstab > /dev/null
+  echo "/home /home xfs defaults,bind,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
   echo "tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
   echo "tmpfs /dev/shm tmpfs defaults,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
   sudo mkdir /etc/systemd/system/systemd-logind.service.d/

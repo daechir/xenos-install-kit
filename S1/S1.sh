@@ -35,7 +35,6 @@ has_pv=$(pvs)
 volume="xvg"
 drive="/dev/sda"
 luks_password="$"
-mirror_list="https://archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on"
 is_intel_cpu=$(lscpu | grep -i "intel(r)" 2> /dev/null || echo "")
 kernel_type="linux-hardened"
 core_pack="apparmor base base-devel dhcpcd git ${kernel_type} ${kernel_type}-headers linux-firmware lvm2 nano unzip xfsprogs"
