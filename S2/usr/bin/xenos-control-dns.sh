@@ -77,7 +77,7 @@ update_vars(){
   # security_failure: various bugs that can result in data compromises
   # inactive_firewall: self explainatory
   #
-  security_failure=$(journalctl | grep -i "failed ap scan\|beacon\|heard\|loss\|degraded feature set" | grep -i -v "brave\|execve")
+  security_failure=$(journalctl | grep -i "failed ap scan\|beacon\|heard\|loss\|degraded feature set" | grep -i -v "execve\|scorecardresearch_beacon.js")
   inactive_firewall=$(systemctl status iptables | grep -i "inactive")
 
   #
