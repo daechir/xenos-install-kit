@@ -30,6 +30,7 @@ control_folders(){
     "/etc/NetworkManager/dispatcher.d/*"
     "/etc/NetworkManager/dnsmasq-shared.d/*"
     "/etc/NetworkManager/dnsmasq.d/*"
+    "/etc/profile.d/*"
     "/etc/xdg/autostart/*"
     "/usr/lib/NetworkManager/conf.d/*"
     "/usr/lib/NetworkManager/dispatcher.d/*"

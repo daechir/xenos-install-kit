@@ -212,14 +212,27 @@ toggle_systemctl() {
   sudo systemctl disable dhcpcd.service
 
   local disablectl=(
+    "alsa-restore.service"
     "alsa-state.service"
     "avahi-daemon.service"
     "avahi-dnsconfd.service"
+    "canberra-system-bootup.service"
+    "canberra-system-shutdown-reboot.service"
+    "canberra-system-shutdown.service"
     "colord.service"
+    "debug-shell.service"
     "emergency.service"
+    "git-daemon@.service"
+    "healthd.service"
     "NetworkManager-dispatcher.service"
     "NetworkManager-wait-online.service"
+    "ninfod.service"
+    "nscd.service"
+    "rarpd@.service"
+    "rdisc.service"
     "rescue.service"
+    "rsyncd.service"
+    "rsyncd@.service"
     "systemd-coredump@.service"
     "systemd-hibernate-resume@.service"
     "systemd-hibernate.service"
@@ -228,18 +241,23 @@ toggle_systemctl() {
     "systemd-hybrid-sleep.service"
     "systemd-journal-remote.service"
     "systemd-journal-upload.service"
-    "systemd-network-generator.service"
-    "systemd-networkd-wait-online.service"
     "systemd-networkd.service"
+    "systemd-networkd-wait-online.service"
+    "systemd-network-generator.service"
     "systemd-portabled.service"
     "systemd-rfkill.service"
-    "systemd-suspend-then-hibernate.service"
     "systemd-suspend.service"
-    "systemd-time-wait-sync.service"
+    "systemd-suspend-then-hibernate.service"
     "systemd-timedated.service"
     "systemd-timesyncd.service"
+    "systemd-time-wait-sync.service"
     "systemd-userdbd.service"
+    "wpa_supplicant-nl80211@.service"
+    "wpa_supplicant@.service"
+    "wpa_supplicant-wired@.service"
     "avahi-daemon.socket"
+    "git-daemon.socket"
+    "rsyncd.socket"
     "systemd-coredump.socket"
     "systemd-journal-remote.socket"
     "systemd-networkd.socket"
@@ -255,8 +273,8 @@ toggle_systemctl() {
     "remote-fs.target"
     "rescue.target"
     "sleep.target"
-    "suspend-then-hibernate.target"
     "suspend.target"
+    "suspend-then-hibernate.target"
   )
 
   for ctl in "${disablectl[@]}"
@@ -342,7 +360,6 @@ harden_parts() {
   sudo cp etc/audit/audit.rules /etc/audit/
 
   # Harden at-spi* or accessibility (1/2)
-  echo -e "\n# Disable at-spi* or accessibility\nNO_GAIL=1\nNO_AT_BRIDGE=1\nexport NO_GAIL NO_AT_BRIDGE" | sudo tee -a /etc/profile > /dev/null
   sudo chmod 600 /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
   sudo chattr +i /usr/lib/at-spi-bus-launcher /usr/lib/at-spi2-registryd
 
@@ -380,16 +397,6 @@ harden_parts() {
     sudo chattr +i "${ctl}"
   done
 
-  # Harden file permissions (1/3)
-  sudo sed -i "s/^umask 022/umask 077/g" /etc/profile
-
-  # Harden history file creation
-  echo -e "\n# Disable .bash_history\nHISTFILE=/dev/null\nHISTFILESIZE=0\nHISTSIZE=0\nexport HISTFILE HISTFILESIZE HISTSIZE" | sudo tee -a /etc/profile > /dev/null
-  echo -e "\n# Disable .lesshst\nLESSHISTFILE=/dev/null\nLESSHISTSIZE=0\nexport LESSHISTFILE LESSHISTSIZE" | sudo tee -a /etc/profile > /dev/null
-
-  # Harden less
-  echo -e "\n# Harden LESS\nSYSTEMD_PAGERSECURE=1\nLESSSECURE=1\nexport SYSTEMD_PAGERSECURE LESSSECURE" | sudo tee -a /etc/profile > /dev/null
-
   # Harden maxsyslogins
   echo -e "* hard maxsyslogins 1\n\n# End of file" | sudo tee -a  /etc/security/limits.conf > /dev/null
 
@@ -415,6 +422,9 @@ harden_parts() {
   sudo sed -i "5 a auth optional pam_faildelay.so delay=5000000" /etc/pam.d/system-login
   # Lastly lock root account
   sudo passwd -l root
+
+  # Harden profile
+  sudo cp etc/profile /etc/
 
   # Harden sshd
   sudo sed -i "s/^#Port.*/Port 18500/g"  /etc/ssh/sshd_config
@@ -448,21 +458,19 @@ harden_parts() {
     sudo cp usr/lib/systemd/system-optional/pcscd.service /etc/systemd/system/
   fi
 
-  # Harden file permissions (2/3)
-  sudo chmod -R 700 /etc/NetworkManager/ /etc/openvpn/ /usr/lib/NetworkManager/ /usr/lib/openvpn/
-
   # Harden mount options
-  sudo sed -i "6 s/rw,relatime/defaults,noatime/g" /etc/fstab
-  sudo sed -i "9 s/rw,relatime,fmask=0022,dmask=0022/defaults,noatime,nosuid,nodev,noexec,fmask=0077,dmask=0077/g" /etc/fstab
-  echo -e "\n/var /var xfs defaults,bind,noatime,nosuid,nodev 0 0" | sudo tee -a  /etc/fstab > /dev/null
-  echo "/home /home xfs defaults,bind,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
-  echo "tmpfs /tmp tmpfs defaults,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
-  echo "tmpfs /dev/shm tmpfs defaults,noatime,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
+  sudo sed -i "6 s/rw,relatime/defaults/g" /etc/fstab
+  sudo sed -i "9 s/rw,relatime,fmask=0022,dmask=0022/defaults,nosuid,nodev,noexec,fmask=0077,dmask=0077/g" /etc/fstab
+  echo -e "\n/var /var xfs defaults,bind,nosuid,nodev 0 0" | sudo tee -a  /etc/fstab > /dev/null
+  echo "/home /home xfs defaults,bind,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
+  echo "tmpfs /tmp tmpfs defaults,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
+  echo "tmpfs /dev/shm tmpfs defaults,nosuid,nodev,noexec 0 0" | sudo tee -a  /etc/fstab > /dev/null
   sudo mkdir /etc/systemd/system/systemd-logind.service.d/
   echo -e "[Service]\nSupplementaryGroups=proc" | sudo tee -a  /etc/systemd/system/systemd-logind.service.d/00_hide_pid.conf  > /dev/null
-  echo "proc /proc proc noatime,nosuid,nodev,noexec,hidepid=2,gid=proc 0 0" | sudo tee -a  /etc/fstab > /dev/null
+  echo "proc /proc proc nosuid,nodev,noexec,hidepid=2,gid=proc 0 0" | sudo tee -a  /etc/fstab > /dev/null
 
-  # Harden file permissions (3/3)
+  # Harden file permissions
+  sudo chmod -R 700 /etc/NetworkManager/ /etc/openvpn/ /usr/lib/NetworkManager/ /usr/lib/openvpn/
   sudo find /etc/systemd/system/ -type f -exec chmod 644 {} \;
 
   # Harden xorg

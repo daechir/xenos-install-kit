@@ -67,7 +67,7 @@ systemdboot_options="${systemdboot_options} random.trust_cpu=off"
 if [[ -n "${is_intel_cpu}" ]]; then
   systemdboot_options="${systemdboot_options} intel_iommu=on intel_pstate=hwp_only modprobe.blacklist=nouveau pci=noaer"
 else
-  systemdboot_options="${systemdboot_options} amd_iommu=on iommu=soft acpi_backlight=vendor"
+  systemdboot_options="${systemdboot_options} amd_iommu=on acpi_backlight=vendor"
 fi
 systemdboot_options="${systemdboot_options} efi=disable_early_pci_dma"
 # Kernel hardening

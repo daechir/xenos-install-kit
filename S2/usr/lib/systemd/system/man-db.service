@@ -1,0 +1,46 @@
+[Unit]
+Description=Daily man-db regeneration
+Documentation=man:mandb(8)
+ConditionACPower=true
+
+[Service]
+Type=oneshot
+# Recover from deletion, per FHS.
+ExecStart=+/usr/bin/install -d -o root -g root -m 0755 /var/cache/man
+# Expunge old catman pages which have not been read in a week.
+ExecStart=/usr/bin/find /var/cache/man -type f -name *.gz -atime +6 -delete
+# Regenerate man database.
+ExecStart=/usr/bin/mandb --quiet
+Nice=19
+IOSchedulingClass=idle
+IOSchedulingPriority=7
+
+CapabilityBoundingSet=CAP_SYS_NICE
+DevicePolicy=closed
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateMounts=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+PrivateUsers=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=read-only
+ProtectHostname=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectProc=invisible
+ProcSubset=pid
+ProtectSystem=full
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+IPAddressDeny=any
+UMask=0077

@@ -21,8 +21,18 @@
 #################################################
 
 
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
+# Source global bash config, when interactive but not posix or sh mode
+if test "$BASH" &&\
+   test "$PS1" &&\
+   test -z "$POSIXLY_CORRECT" &&\
+   test "${0#-}" != sh &&\
+   test -r /etc/bash.bashrc
+then
+    . /etc/bash.bashrc
+fi
+
+# Set our umask
+umask 077
 
 # Disable at-spi* or accessibility
 NO_GAIL=1
@@ -53,12 +63,3 @@ export PATH
 
 # Unset various variables
 unset GTK_MODULES LOGNAME MAIL MANPATH MOTD_SHOWN TERMCAP
-
-# Enhance terminal
-PROMPT_COMMAND='echo -en "\033]0; ${USER} @ ${PWD##*/} \a"'
-PS1='\n\e[0;36m\w\e[m\n>'
-COLORTERM=truecolor
-TERM=xterm-256color
-SYSTEMD_COLORS=1
-export COLORTERM TERM SYSTEMD_COLORS
-

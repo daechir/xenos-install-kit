@@ -2,23 +2,28 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 03/24/21 <br/>
-Version: v3c
+Modified Date: 03/28/21 <br/>
+Version: v3c1
 
 
 ## Changelog
-+ v3c
++ v3c1
+  * S1.sh
+    + Remove AMD iommu= parameter.
+      * In some instances iommu=soft can cause iommu to fail altogether.
   * S2b.sh
-    + xenos-control-dns.sh:
-      * Change brave security filter to explicit.
-    + /etc/modprobe.d/*:
-      * Add blacklisting for:
-        + RAPL drivers
-          * With debugfs disabled entirely most RAPL based applications will generally refuse to work. Therefore most of these drivers are generally bloat without providing anything in return.
-        + *SCSI* drivers
-          * Prevents numerous privilege escalation attacks.
-    + /etc/modules-load.d/*:
-      * Deprecate ath9k_htc from 00_whitelisted.conf.
+    + xenos-control-defaults.sh:
+      * Add /etc/profile.d.
+    + Add new ctls.
+    + Ship /etc/profile as a file instead of modifying the existing one.
+    + Add man-db.service isolation.
+    + Remove noatime from /etc/fstab.
+      * The performance gain from this flag is neglible with newer XFS versions.
+    + bashrc:
+      * Restrict all PAGER requests to use less (In secure mode).
+      * Restrict PATH environment variable.
+      * Unset numerous other variables.
+      * Enhance terminal further.
 
 
 ## Purpose
