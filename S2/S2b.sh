@@ -173,8 +173,7 @@ install_optionals() {
   sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
   # Setup openvpn-update-systemd-resolved resolved.conf
-  sudo sed -i "1,18!d" /etc/systemd/resolved.conf
-  echo -e "#DNS=\nFallbackDNS=\nDomains=\nDNSSEC=yes\nDNSOverTLS=no\nMulticastDNS=no\nLLMNR=no\nCache=yes\nDNSStubListener=yes\nDNSStubListenerExtra=\nReadEtcHosts=yes\nResolveUnicastSingleLabel=no" | sudo tee -a  /etc/systemd/resolved.conf > /dev/null
+  sudo cp etc/resolved.conf /etc/systemd
 
   #########################################################################################
   # Setup an unprivileged Openvpn daemon to house delevated Openvpn connections
@@ -420,6 +419,13 @@ harden_parts() {
   # Additionally add a 5 second delay between each login
   echo -e "\ndeny = 3\nfail_interval = 300\nunlock_time = 600" | sudo tee -a  /etc/security/faillock.conf > /dev/null
   sudo sed -i "5 a auth optional pam_faildelay.so delay=5000000" /etc/pam.d/system-login
+  # Disable pam_motd.so and pam_mail.so
+  sudo sed -i "s|^session    optional   pam_motd.so          motd=/etc/motd|#session    optional   pam_motd.so          motd=/etc/motd|g" /etc/pam.d/system-login
+  sudo sed -i "s|^session    optional   pam_mail.so          dir=/var/spool/mail standard quiet|#session    optional   pam_mail.so          dir=/var/spool/mail standard quiet|g" /etc/pam.d/system-login
+  # Disable pam_systemd_home.so (systemd-homed intergration)
+  sudo sed -i "s/^-auth      \[success=1 default=ignore\]  pam_systemd_home.so/#-auth      [success=1 default=ignore]  pam_systemd_home.so/g" /etc/pam.d/system-auth
+  sudo sed -i "s/^-account   \[success=1 default=ignore\]  pam_systemd_home.so/#-account   [success=1 default=ignore]  pam_systemd_home.so/g" /etc/pam.d/system-auth
+  sudo sed -i "s/^-password  \[success=1 default=ignore\]  pam_systemd_home.so/#-password  [success=1 default=ignore]  pam_systemd_home.so/g" /etc/pam.d/system-auth
   # Lastly lock root account
   sudo passwd -l root
 

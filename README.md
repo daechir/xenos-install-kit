@@ -2,28 +2,22 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 03/28/21 <br/>
-Version: v3c1
+Modified Date: 04/04/21 <br/>
+Version: v3c2
 
 
 ## Changelog
-+ v3c1
-  * S1.sh
-    + Remove AMD iommu= parameter.
-      * In some instances iommu=soft can cause iommu to fail altogether.
++ v3c2
   * S2b.sh
-    + xenos-control-defaults.sh:
-      * Add /etc/profile.d.
-    + Add new ctls.
-    + Ship /etc/profile as a file instead of modifying the existing one.
-    + Add man-db.service isolation.
-    + Remove noatime from /etc/fstab.
-      * The performance gain from this flag is neglible with newer XFS versions.
-    + bashrc:
-      * Restrict all PAGER requests to use less (In secure mode).
-      * Restrict PATH environment variable.
-      * Unset numerous other variables.
-      * Enhance terminal further.
+    + Ship /etc/systemd/resolved.conf as a file instead of modifying the existing one.
+    + Disable calling pam_motd.so and pam_mail.so (Which are already unset from the env) from /etc/pam.d/system-login.
+    + Disable calling pam_systemd_home.so (systemd-homed intergration) from /etc/pam.d/system-auth.
+    + Enhance the following services:
+      * usr/lib/systemd/system-optional:
+        + tpm2-abrmd.service
+      * usr/lib/systemd/systemd:
+        + dbus.service
+        + udisks2.service
 
 
 ## Purpose

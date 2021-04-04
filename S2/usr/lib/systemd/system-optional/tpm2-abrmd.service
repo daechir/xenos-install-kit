@@ -12,7 +12,8 @@ ExecStart=/usr/bin/tpm2-abrmd
 User=tss
 
 CapabilityBoundingSet=
-#DevicePolicy=strict
+DevicePolicy=closed
+DeviceAllow=/dev/tpm0 rw
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes

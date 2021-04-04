@@ -9,7 +9,9 @@ ExecStart=/usr/lib/udisks2/udisksd
 KillSignal=SIGINT
 
 CapabilityBoundingSet=CAP_SYS_ADMIN CAP_SYS_RAWIO
-#DevicePolicy=strict
+DevicePolicy=closed
+DeviceAllow=block-* rw
+DeviceAllow=/dev/fuse rw
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
