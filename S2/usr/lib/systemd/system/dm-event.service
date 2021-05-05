@@ -14,12 +14,18 @@ Environment=SD_ACTIVATION=1
 PIDFile=/run/dmeventd.pid
 OOMScoreAdjust=-1000
 
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
 CapabilityBoundingSet=
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 #PrivateTmp=yes

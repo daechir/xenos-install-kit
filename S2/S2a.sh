@@ -54,8 +54,12 @@ configure_firewall() {
 
   # Harden file permissions
   chmod -R 700 /etc/iptables/
+
+  return 0
 }
 
 
 configure_firewall
+
+exit 0
 

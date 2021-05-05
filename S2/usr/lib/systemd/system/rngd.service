@@ -7,12 +7,18 @@ Before=sysinit.target shutdown.target
 EnvironmentFile=/etc/conf.d/rngd
 ExecStart=/usr/bin/rngd -f $RNGD_OPTS
 
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
 CapabilityBoundingSet=CAP_SYS_ADMIN
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 PrivateTmp=yes

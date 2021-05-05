@@ -8,12 +8,18 @@ ExecStart=/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile 
 ExecReload=/usr/bin/dbus-send --print-reply --system --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 OOMScoreAdjust=-900
 
-#CapabilityBoundingSet=
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
+CapabilityBoundingSet=CAP_SETGID CAP_SETUID CAP_SYSLOG
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 PrivateTmp=yes

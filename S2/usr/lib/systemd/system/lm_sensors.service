@@ -9,12 +9,18 @@ ExecStart=-/sbin/modprobe -qab $BUS_MODULES $HWMON_MODULES
 ExecStart=/usr/bin/sensors -s
 ExecStop=-/sbin/modprobe -qabr $BUS_MODULES $HWMON_MODULES
 
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
 CapabilityBoundingSet=
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 PrivateTmp=yes

@@ -28,15 +28,21 @@
 set -xe
 
 
-# Variables
-cputhreads=$(nproc)
-is_amd_gpu=$(lspci | grep -i "vga\|3d" | grep -i "amd" 2> /dev/null || echo "")
-is_intel_gpu=$(lspci | grep -i "vga\|3d" | grep -i "intel" 2> /dev/null || echo "")
-is_nvidia_gpu=$(lspci | grep -i "vga\|3d" | grep -i "nvidia" 2> /dev/null || echo "")
-install_nvidia=""
-install_optimus=""
-has_tpm=$(cat /sys/class/tpm/tpm0/tpm_version_major 2> /dev/null || echo "")
-crda_region="US"
+initialize() {
+  #
+  ## Variable prep
+  #
+  cputhreads=$(nproc)
+  is_amd_gpu=$(lspci | grep -i "vga\|3d" | grep -i "amd" 2> /dev/null || echo "")
+  is_intel_gpu=$(lspci | grep -i "vga\|3d" | grep -i "intel" 2> /dev/null || echo "")
+  is_nvidia_gpu=$(lspci | grep -i "vga\|3d" | grep -i "nvidia" 2> /dev/null || echo "")
+  install_nvidia=""
+  install_optimus=""
+  has_tpm=$(cat /sys/class/tpm/tpm0/tpm_version_major 2> /dev/null || echo "")
+  crda_region="US"
+
+  return 0
+}
 
 
 install_essentials() {
@@ -149,6 +155,8 @@ install_essentials() {
   cd brave-bin
   makepkg -csi --noconfirm
   cd ..
+
+  return 0
 }
 
 
@@ -201,6 +209,8 @@ install_optionals() {
 
   # Setup xenos-* as immutable
   sudo chattr +i /usr/bin/xenos-control-defaults.sh /usr/bin/xenos-control-dns.sh /usr/bin/xenos-setup-power-scheme.sh
+
+  return 0
 }
 
 
@@ -321,22 +331,17 @@ toggle_systemctl() {
   do
     sudo systemctl enable "${ctl}"
   done
+
+  return 0
 }
 
 
 misc_fixes() {
-  # Adjust journal file size
-  sudo sed -i "s/^#SystemMaxUse=/SystemMaxUse=50M/g" /etc/systemd/journald.conf
-
   # Fix apparmor boot time hanging issue
   sudo sed -i "s/^#write-cache/write-cache/g" /etc/apparmor/parser.conf
 
   # Fix lm_sensors
   sudo sensors-detect --auto
-
-  # Fix systemd shutdown hanging issue
-  sudo sed -i "s/^#DefaultTimeoutStopSec=.*/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
-  sudo sed -i "s/^#DefaultTimeoutStartSec=.*/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
 
   # Setup our specific CRDA region
   sed -i "s/ieee80211_regdom=/ieee80211_regdom=${crda_region}/g" etc/modprobe.d/optional/10_vendor_any.conf
@@ -351,11 +356,59 @@ misc_fixes() {
   else
     sudo cp etc/modprobe.d/optional/11_vendor_amd.conf /etc/modprobe.d/
   fi
+
+  return 0
 }
 
 
-harden_parts() {
-  # Harden auditd
+harden_systemd_parts() {
+  # Harden /etc/systemd/coredump.conf
+  sudo sed -i "s/^#Storage=.*/Storage=none/g" /etc/systemd/coredump.conf
+  sudo sed -i "s/^#ProcessSizeMax=.*/ProcessSizeMax=0/g" /etc/systemd/coredump.conf
+
+  # Harden /etc/systemd/journald.conf
+  sudo sed -i "s/^#Storage=.*/Storage=persistent/g" /etc/systemd/journald.conf
+  sudo sed -i "s/^#Compress=.*/Compress=yes/g" /etc/systemd/journald.conf
+  sudo sed -i "s/^#SystemMaxUse=.*/SystemMaxUse=50M/g" /etc/systemd/journald.conf
+  sudo sed -i "s/^#ForwardToSyslog=.*/ForwardToSyslog=yes/g" /etc/systemd/journald.conf
+
+  # Harden /etc/systemd/system.conf
+  sudo sed -i "s/^#DumpCore=.*/DumpCore=no/g" /etc/systemd/system.conf
+  sudo sed -i "s/^#CrashShell=.*/CrashShell=no/g" /etc/systemd/system.conf
+  sudo sed -i "s/^#SystemCallArchitectures=.*/SystemCallArchitectures=native/g" /etc/systemd/system.conf
+  sudo sed -i "s/^#DefaultTimeoutStartSec=.*/DefaultTimeoutStartSec=10s/g"  /etc/systemd/system.conf
+  sudo sed -i "s/^#DefaultTimeoutStopSec=.*/DefaultTimeoutStopSec=10s/g"  /etc/systemd/system.conf
+  sudo sed -i "s/^#DefaultLimitCORE=.*/DefaultLimitCORE=0/g" /etc/systemd/system.conf
+
+  # Harden /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowSuspend=.*/AllowSuspend=no/g" /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowHibernation=.*/AllowHibernation=no/g" /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowSuspendThenHibernate=.*/AllowSuspendThenHibernate=no/g" /etc/systemd/sleep.conf
+  sudo sed -i "s/^#AllowHybridSleep=.*/AllowHybridSleep=no/g" /etc/systemd/sleep.conf
+
+  # Harden services at /etc/systemd/system/
+  sudo cp -R usr/lib/systemd/system/ /etc/systemd/
+
+  if [[ -n "${is_intel_gpu}" ]]; then
+    sudo cp usr/lib/systemd/system-optional/upower.service /etc/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/thermald.service /etc/systemd/system/
+  fi
+
+  if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
+    sudo cp usr/lib/systemd/system-optional/optimus-manager.service /etc/systemd/system/
+  fi
+
+  if [[ "${has_tpm}" == 2 ]]; then
+    sudo cp usr/lib/systemd/system-optional/tpm2-abrmd.service /etc/systemd/system/
+    sudo cp usr/lib/systemd/system-optional/pcscd.service /etc/systemd/system/
+  fi
+
+  return 0
+}
+
+
+harden_other_parts() {
+  # Harden auditd rules
   sudo cp etc/audit/audit.rules /etc/audit/
 
   # Harden at-spi* or accessibility (1/2)
@@ -365,14 +418,6 @@ harden_parts() {
   # Harden consoles and ttys
   echo -e "\n+:(wheel):LOCAL\n-:ALL:ALL" | sudo tee -a /etc/security/access.conf > /dev/null
   sudo sed -i "1,2!d" /etc/securetty
-
-  # Harden coredumps
-  sudo sed -i "1,12!d" /etc/systemd/coredump.conf
-  echo -e "\n[Coredump]\nStorage=none\nProcessSizeMax=0" | sudo tee -a  /etc/systemd/coredump.conf > /dev/null
-  sudo sed -i "s/^#CrashShell=.*/CrashShell=no/g" /etc/systemd/system.conf
-  sudo sed -i "s/^#DefaultLimitCORE=/DefaultLimitCORE=0/g" /etc/systemd/system.conf
-  sudo sed -i "s/^#DumpCore=.*/DumpCore=no/g" /etc/systemd/system.conf
-  sudo sed -i "s/^# End of file/* hard core 0/g" /etc/security/limits.conf
 
   # Harden dbus related items (also at-spi* or accessibility (2/2))
   local dbusctl=(
@@ -396,7 +441,8 @@ harden_parts() {
     sudo chattr +i "${ctl}"
   done
 
-  # Harden maxsyslogins
+  # Harden limits.conf
+  sudo sed -i "s/^# End of file/* hard core 0/g" /etc/security/limits.conf
   echo -e "* hard maxsyslogins 1\n\n# End of file" | sudo tee -a  /etc/security/limits.conf > /dev/null
 
   ## Harden modules
@@ -435,34 +481,18 @@ harden_parts() {
   # Harden sshd
   sudo sed -i "s/^#Port.*/Port 18500/g"  /etc/ssh/sshd_config
   sudo sed -i "s/^#PermitRootLogin.*/PermitRootLogin no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#StrictModes.*/StrictModes yes/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#PermitEmptyPasswords.*/PermitEmptyPasswords no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#AllowAgentForwarding.*/AllowAgentForwarding no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#AllowTcpForwarding.*/AllowTcpForwarding no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#X11Forwarding.*/X11Forwarding no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#PermitTTY.*/PermitTTY no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#TCPKeepAlive.*/TCPKeepAlive no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#PermitUserEnvironment.*/PermitUserEnvironment no/g"  /etc/ssh/sshd_config
+  sudo sed -i "s/^#UseDNS.*/UseDNS no/g"  /etc/ssh/sshd_config
 
   # Harden sysctl
   sudo cp etc/00_xenos_hardening.conf /etc/sysctl.d/
-
-  # Harden Systemd sleep
-  sudo sed -i "s/^#AllowSuspend=.*/AllowSuspend=no/g" /etc/systemd/sleep.conf
-  sudo sed -i "s/^#AllowHibernation=.*/AllowHibernation=no/g" /etc/systemd/sleep.conf
-  sudo sed -i "s/^#AllowSuspendThenHibernate=.*/AllowSuspendThenHibernate=no/g" /etc/systemd/sleep.conf
-  sudo sed -i "s/^#AllowHybridSleep=.*/AllowHybridSleep=no/g" /etc/systemd/sleep.conf
-
-  # Harden Systemd services
-  sudo sed -i "s/^#SystemCallArchitectures=/SystemCallArchitectures=native/g" /etc/systemd/system.conf
-
-  sudo cp -R usr/lib/systemd/system/ /etc/systemd/
-
-  if [[ -n "${is_intel_gpu}" ]]; then
-    sudo cp usr/lib/systemd/system-optional/upower.service /etc/systemd/system/
-    sudo cp usr/lib/systemd/system-optional/thermald.service /etc/systemd/system/
-  fi
-
-  if [[ -n "${is_intel_gpu}" && -n "${is_nvidia_gpu}" && -n "${install_optimus}" ]]; then
-    sudo cp usr/lib/systemd/system-optional/optimus-manager.service /etc/systemd/system/
-  fi
-
-  if [[ "${has_tpm}" == 2 ]]; then
-    sudo cp usr/lib/systemd/system-optional/tpm2-abrmd.service /etc/systemd/system/
-    sudo cp usr/lib/systemd/system-optional/pcscd.service /etc/systemd/system/
-  fi
 
   # Harden mount options
   sudo sed -i "6 s/rw,relatime/defaults/g" /etc/fstab
@@ -500,6 +530,8 @@ harden_parts() {
 
   # Remove unused packages
   sudo pacman -Rns --noconfirm dhcpcd sudo
+
+  return 0
 }
 
 
@@ -507,13 +539,19 @@ exit_installer() {
   # Prompt for shutdown
   read -p "Xenos post install complete. Press [Enter] key to shutdown..."
   systemctl poweroff
+
+  return 0
 }
 
 
+initialize
 install_essentials
 install_optionals
 toggle_systemctl
 misc_fixes
-harden_parts
+harden_systemd_parts
+harden_other_parts
 exit_installer
+
+exit 0
 

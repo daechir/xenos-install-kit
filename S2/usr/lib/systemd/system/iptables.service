@@ -10,12 +10,18 @@ ExecReload=/usr/bin/iptables-restore /etc/iptables/iptables.rules
 ExecStop=/usr/lib/systemd/scripts/iptables-flush
 RemainAfterExit=yes
 
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 #PrivateNetwork=yes
 PrivateTmp=yes

@@ -2,22 +2,35 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 04/04/21 <br/>
-Version: v3c2
+Modified Date: 05/05/21 <br/>
+Version: v3c3
 
 
 ## Changelog
-+ v3c2
++ v3c3
+  * S1.sh
+    + Refractoring:
+      * Add:
+        + initialize().
+  * S2a.sh
+    + Refractoring.
   * S2b.sh
-    + Ship /etc/systemd/resolved.conf as a file instead of modifying the existing one.
-    + Disable calling pam_motd.so and pam_mail.so (Which are already unset from the env) from /etc/pam.d/system-login.
-    + Disable calling pam_systemd_home.so (systemd-homed intergration) from /etc/pam.d/system-auth.
-    + Enhance the following services:
-      * usr/lib/systemd/system-optional:
-        + tpm2-abrmd.service
-      * usr/lib/systemd/systemd:
-        + dbus.service
-        + udisks2.service
+    + Refractoring:
+      * Add:
+        + initialize().
+        + harden_systemd_parts().
+      * Group together changes to the same file in one block (Where possible).
+    + Add additional sshd toggles.
+    + Add the following values to all service files:
+      * KeyringMode
+      * PrivateIPC
+      * StandardInput
+      * StandardOutput
+      * StandardError
+    + Enhance isolation for the following services:
+      * dbus.service
+      * systemd-udevd.service
+      * user@.service
 
 
 ## Purpose

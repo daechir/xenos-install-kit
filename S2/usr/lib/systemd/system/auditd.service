@@ -28,12 +28,18 @@ ExecStartPost=-/usr/bin/auditctl -R /etc/audit/audit.rules
 # the next line after copying the file to /etc/systemd/system/auditd.service
 #ExecStopPost=/usr/bin/auditctl -R /etc/audit/audit-stop.rules
 
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
 CapabilityBoundingSet=CAP_AUDIT_CONTROL CAP_AUDIT_READ CAP_AUDIT_WRITE CAP_SYS_NICE
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 PrivateTmp=yes

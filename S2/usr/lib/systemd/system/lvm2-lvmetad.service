@@ -15,12 +15,18 @@ Environment=SD_ACTIVATION=1
 Restart=on-abort
 PIDFile=/run/lvmetad.pid
 
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
 CapabilityBoundingSet=
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 #PrivateTmp=yes

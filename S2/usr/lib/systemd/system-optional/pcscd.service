@@ -7,12 +7,18 @@ Documentation=man:pcscd(8)
 ExecStart=/usr/bin/pcscd --foreground --auto-exit
 ExecReload=/usr/bin/pcscd --hotplug
 
+StandardInput=null
+StandardOutput=null
+StandardError=null
+
 CapabilityBoundingSet=
 DevicePolicy=closed
+KeyringMode=private
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
+PrivateIPC=yes
 PrivateMounts=yes
 PrivateNetwork=yes
 PrivateTmp=yes
