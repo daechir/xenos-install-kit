@@ -2,35 +2,23 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 05/05/21 <br/>
-Version: v3c3
+Modified Date: 06/09/21 <br/>
+Version: v3d
 
 
 ## Changelog
-+ v3c3
++ v3d
   * S1.sh
-    + Refractoring:
-      * Add:
-        + initialize().
-  * S2a.sh
-    + Refractoring.
+    + Add randomize_kstack_offset=1 parameter for upcoming linux kernel 5.13 security feature.
   * S2b.sh
-    + Refractoring:
-      * Add:
-        + initialize().
-        + harden_systemd_parts().
-      * Group together changes to the same file in one block (Where possible).
-    + Add additional sshd toggles.
-    + Add the following values to all service files:
-      * KeyringMode
-      * PrivateIPC
-      * StandardInput
-      * StandardOutput
-      * StandardError
-    + Enhance isolation for the following services:
-      * dbus.service
-      * systemd-udevd.service
-      * user@.service
+    + Restrict permissions on /usr/bin/update-systemd-resolved.
+    + xenos-control-defaults.sh:
+      * Add control_suid().
+    + xenos-control-dns.sh:
+      * Regress security_failure cases back to commit [v2k](https://github.com/daechir/xenos-install-kit/commit/bb9bb6ed28568d0383183bfbe6d7aed21f212ebf#diff-ab7cee8700a41aac92e77161de08d7b91581beef35f925692db9bc605aa54402).
+      * Add additional tweaks for wireless devices.
+    + Fix NetworkManager mac address randomization race condition.
+    + Update 11_vendor_amd.conf to reflect changes as of linux kernel 5.12.
 
 
 ## Purpose
@@ -139,6 +127,7 @@ chmod +x the sh files, sudo ./S2a.sh and finally ./S2b.sh.
 + install_optionals()
   * https://github.com/jonathanio/update-systemd-resolved
   * https://wiki.archlinux.org/index.php/Systemd-resolved
+  * https://github.com/konstruktoid/hardening/blob/master/misc/suid.list
   * https://man.archlinux.org/man/core/systemd/systemd.net-naming-scheme.7.en
   * https://developer.gnome.org/NetworkManager/stable/
 + misc_fixes()
@@ -147,7 +136,7 @@ chmod +x the sh files, sudo ./S2a.sh and finally ./S2b.sh.
   * https://wiki.archlinux.org/index.php/Lm_sensors
   * https://man.archlinux.org/man/core/systemd/user.conf.d.5.en
   * https://wiki.archlinux.org/index.php/Iw
-+ harden_parts()
++ harden_systemd_parts() & harden_parts()
   * https://github.com/Neo23x0/auditd/blob/master/audit.rules
   * https://wiki.gnome.org/Accessibility/Documentation/GNOME2/Mechanics
   * https://wiki.archlinux.org/index.php/Security

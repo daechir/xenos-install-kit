@@ -172,6 +172,7 @@ install_optionals() {
   cd openvpn-update-systemd-resolved
   makepkg -csi --noconfirm
   cd ..
+  sudo chmod 700 /usr/bin/update-systemd-resolved
 
   # Setup openvpn-update-systemd-resolved nsswitch.conf
   sudo sed -i "d" /etc/nsswitch.conf
@@ -342,6 +343,9 @@ misc_fixes() {
 
   # Fix lm_sensors
   sudo sensors-detect --auto
+
+  # Fix NetworkManager mac address randomization race condition
+  echo -e "\n[device]\nwifi.scan-rand-mac-address=no" | sudo tee -a /etc/NetworkManager/NetworkManager.conf > /dev/null
 
   # Setup our specific CRDA region
   sed -i "s/ieee80211_regdom=/ieee80211_regdom=${crda_region}/g" etc/modprobe.d/optional/10_vendor_any.conf

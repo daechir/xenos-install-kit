@@ -78,6 +78,7 @@ initialize() {
   systemdboot_options="${systemdboot_options} mce=0"
   systemdboot_options="${systemdboot_options} page_alloc.shuffle=1"
   systemdboot_options="${systemdboot_options} pti=on"
+  systemdboot_options="${systemdboot_options} randomize_kstack_offset=1"
   systemdboot_options="${systemdboot_options} slab_nomerge"
   systemdboot_options="${systemdboot_options} slub_debug=FZ"
   systemdboot_options="${systemdboot_options} vsyscall=none"

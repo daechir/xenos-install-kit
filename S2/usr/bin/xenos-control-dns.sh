@@ -77,7 +77,7 @@ update_vars(){
   # security_failure: various bugs that can result in data compromises
   # inactive_firewall: self explainatory
   #
-  security_failure=$(journalctl | grep -i "failed ap scan\|beacon\|heard\|loss\|degraded feature set" | grep -i -v "execve\|scorecardresearch_beacon.js")
+  security_failure=$(journalctl | grep -i "failed to initiate ap scan\|no beacon heard and the time event is over already\|using degraded feature set" | grep -i -v "execve")
   inactive_firewall=$(systemctl status iptables | grep -i "inactive")
 
   #
@@ -165,6 +165,8 @@ setup_connectivity(){
   if [[ -n "${xenos_connection}" ]]; then
     if [[ "${xenos_device}" == wl* ]]; then
       nmcli connection mod "${xenos_connection}" 802-11-wireless.powersave 2
+      nmcli connection mod "${xenos_connection}" 802-11-wireless.wake-on-wlan 0x8000
+      iw "${xenos_device}" set power_save off
     fi
 
     nmcli connection mod "${xenos_connection}" connection.llmnr 0
