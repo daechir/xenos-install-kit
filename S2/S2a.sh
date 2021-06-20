@@ -28,7 +28,7 @@
 set -xe
 
 
-configure_firewall() {
+configure_firewall(){
   # Configure the firewall
   iptables -N TCP
   iptables -N UDP

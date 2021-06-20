@@ -8,7 +8,7 @@ IgnoreOnIsolate=true
 [Service]
 Type=dbus
 BusName=fi.w1.wpa_supplicant1
-ExecStart=/usr/bin/wpa_supplicant -u -s -O /run/wpa_supplicant
+ExecStart=/usr/bin/wpa_supplicant -u -qq -O /run/wpa_supplicant
 
 StandardInput=null
 StandardOutput=null

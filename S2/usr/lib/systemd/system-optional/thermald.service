@@ -4,9 +4,10 @@ ConditionVirtualization=no
 
 [Service]
 Type=dbus
-SuccessExitStatus=1
+SuccessExitStatus=2
 BusName=org.freedesktop.thermald
 ExecStart=/usr/bin/thermald --systemd --dbus-enable --adaptive
+Restart=on-failure
 
 StandardInput=null
 StandardOutput=null

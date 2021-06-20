@@ -15,6 +15,10 @@ Restart=on-failure
 # NM doesn't want systemd to kill its children for it
 KillMode=process
 
+# We require file descriptors for DHCP etc. When activating many interfaces,
+# the default limit of 1024 is easily reached.
+LimitNOFILE=65536
+
 StandardInput=null
 StandardOutput=null
 StandardError=null

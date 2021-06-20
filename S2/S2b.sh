@@ -28,7 +28,7 @@
 set -xe
 
 
-initialize() {
+initialize(){
   #
   ## Variable prep
   #
@@ -44,8 +44,7 @@ initialize() {
   return 0
 }
 
-
-install_essentials() {
+install_essentials(){
   # Before proceeding enhance makepkg and mkinitcpio
   sudo sed -i "s/^#MAKEFLAGS=.*/MAKEFLAGS=\"-j${cputhreads}\"/g" /etc/makepkg.conf
   sudo sed -i "s/^COMPRESSXZ=.*/COMPRESSXZ=(xz -c -z - --threads=${cputhreads})/g" /etc/makepkg.conf
@@ -159,8 +158,7 @@ install_essentials() {
   return 0
 }
 
-
-install_optionals() {
+install_optionals(){
   # Install redshift-minimal
   git clone https://aur.archlinux.org/redshift-minimal.git
   cd redshift-minimal
@@ -214,8 +212,12 @@ install_optionals() {
   return 0
 }
 
+toggle_systemctl(){
+  #
+  ## Variable prep
+  #
+  colord_installed=$(pacman -Qs colord | grep -i -v "lib")
 
-toggle_systemctl() {
   ### Disable some unused services, sockets and targets
   ## Start with dhcpcd, which is removed later
   sudo systemctl stop dhcpcd.service 2> /dev/null
@@ -229,7 +231,6 @@ toggle_systemctl() {
     "canberra-system-bootup.service"
     "canberra-system-shutdown-reboot.service"
     "canberra-system-shutdown.service"
-    "colord.service"
     "debug-shell.service"
     "emergency.service"
     "git-daemon@.service"
@@ -287,19 +288,12 @@ toggle_systemctl() {
     "suspend-then-hibernate.target"
   )
 
+  if [[ -n "${colord_installed}" ]]; then
+	disablectl=("${disablectl[@]}" "colord.service")
+  fi
+
   for ctl in "${disablectl[@]}"
   do
-    local ctlactive=$(systemctl status "${ctl}" | grep -i "active: active")
-    local ctlexist=$(ls -la /usr/lib/systemd/system | grep -i "${ctl}")
-
-    if [[ -n "${ctlactive}" ]]; then
-      sudo systemctl stop "${ctl}" 2> /dev/null
-    fi
-
-    if [[ -n "${ctlexist}" ]]; then
-      sudo systemctl disable "${ctl}"
-    fi
-
     sudo systemctl mask "${ctl}"
   done
 
@@ -336,8 +330,7 @@ toggle_systemctl() {
   return 0
 }
 
-
-misc_fixes() {
+misc_fixes(){
   # Fix apparmor boot time hanging issue
   sudo sed -i "s/^#write-cache/write-cache/g" /etc/apparmor/parser.conf
 
@@ -364,8 +357,7 @@ misc_fixes() {
   return 0
 }
 
-
-harden_systemd_parts() {
+harden_systemd_parts(){
   # Harden /etc/systemd/coredump.conf
   sudo sed -i "s/^#Storage=.*/Storage=none/g" /etc/systemd/coredump.conf
   sudo sed -i "s/^#ProcessSizeMax=.*/ProcessSizeMax=0/g" /etc/systemd/coredump.conf
@@ -410,8 +402,7 @@ harden_systemd_parts() {
   return 0
 }
 
-
-harden_other_parts() {
+harden_other_parts(){
   # Harden auditd rules
   sudo cp etc/audit/audit.rules /etc/audit/
 
@@ -427,9 +418,7 @@ harden_other_parts() {
   local dbusctl=(
     "/usr/share/dbus-1/accessibility-services/org.a11y.atspi.Registry.service"
     "/usr/share/dbus-1/services/org.a11y.Bus.service"
-    "/usr/share/dbus-1/services/org.freedesktop.ColorHelper.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.Avahi.service"
-    "/usr/share/dbus-1/system-services/org.freedesktop.ColorManager.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.home1.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.network1.service"
     "/usr/share/dbus-1/system-services/org.freedesktop.nm_dispatcher.service"
@@ -438,11 +427,17 @@ harden_other_parts() {
     "/usr/share/dbus-1/system-services/org.freedesktop.timesync1.service"
   )
 
+  if [[ -n "${colord_installed}" ]]; then
+	dbusctl=("${dbusctl[@]}" "/usr/share/dbus-1/services/org.freedesktop.ColorHelper.service" "/usr/share/dbus-1/system-services/org.freedesktop.ColorManager.service")
+  fi
+
   for ctl in "${dbusctl[@]}"
   do
-    sudo sed -i "d" "${ctl}"
-    sudo chmod 600 "${ctl}"
-    sudo chattr +i "${ctl}"
+    if [[ -f "${ctl}" ]]; then
+      sudo sed -i "d" "${ctl}"
+      sudo chmod 600 "${ctl}"
+      sudo chattr +i "${ctl}"
+    fi
   done
 
   # Harden limits.conf
@@ -538,8 +533,7 @@ harden_other_parts() {
   return 0
 }
 
-
-exit_installer() {
+exit_installer(){
   # Prompt for shutdown
   read -p "Xenos post install complete. Press [Enter] key to shutdown..."
   systemctl poweroff

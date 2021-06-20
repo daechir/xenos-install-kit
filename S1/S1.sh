@@ -28,7 +28,7 @@
 set -xe
 
 
-initialize() {
+initialize(){
   #
   ## Variable prep
   #
@@ -100,8 +100,7 @@ initialize() {
   return 0
 }
 
-
-setup_drive() {
+setup_drive(){
   # Set the system time
   timedatectl set-ntp true
 
@@ -160,8 +159,7 @@ setup_drive() {
   return 0
 }
 
-
-setup_system() {
+setup_system(){
   # Begin pacstrap
   pacstrap /mnt $core_pack
 
@@ -171,8 +169,7 @@ setup_system() {
   return 0
 }
 
-
-enter_chroot() {
+enter_chroot(){
 arch-chroot /mnt /bin/bash <<EOF
   # Set the timezone
   ln -sf /usr/share/zoneinfo/"${timezone}" /etc/localtime
@@ -209,8 +206,7 @@ arch-chroot /mnt /bin/bash <<EOF
 EOF
 }
 
-
-exit_installer() {
+exit_installer(){
   # Dismount all mounted partitions
   umount -R /mnt
 

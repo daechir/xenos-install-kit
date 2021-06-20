@@ -2,8 +2,8 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 06/09/21 <br/>
-Version: v3d
+Modified Date: 06/20/21 <br/>
+Version: v3d1
 
 
 ## Changelog
@@ -19,6 +19,14 @@ Version: v3d
       * Add additional tweaks for wireless devices.
     + Fix NetworkManager mac address randomization race condition.
     + Update 11_vendor_amd.conf to reflect changes as of linux kernel 5.12.
++ v3d1
+  * S1.sh & S2a.sh & S2b.sh:
+    + Standardize function spacing to match scripts.
+  * S2b.sh
+    + Add an additional clause for colord detection due to commit [1.4.5-3: split libcolord](https://github.com/archlinux/svntogit-packages/commits/packages/colord/trunk).
+      * The implemented changes should still remain in place incase another package pulls colord in again.
+    + Update all .service files to match upstream versions.
+    + Quiet wpa_supplicant.service.
 
 
 ## Purpose
