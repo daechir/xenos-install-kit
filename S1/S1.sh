@@ -40,7 +40,7 @@ initialize(){
   luks_password="$"
   is_intel_cpu=$(lscpu | grep -i "intel(r)" 2> /dev/null || echo "")
   kernel_type="linux-hardened"
-  core_pack="apparmor base base-devel dhcpcd git ${kernel_type} ${kernel_type}-headers linux-firmware lvm2 nano unzip xfsprogs"
+  core_pack="apparmor base base-devel dhcpcd git ${kernel_type} ${kernel_type}-headers ${kernel_type}-docs linux-firmware lvm2 nano unzip xfsprogs"
   if [[ -n "${is_intel_cpu}" ]]; then
     cpu_type="intel"
   else
@@ -55,7 +55,7 @@ initialize(){
   userpass="$"
   # Begin systemdboot_options generation
   # Core security features
-  systemdboot_options="apparmor=1 lsm=lockdown,yama,apparmor audit=1"
+  systemdboot_options="apparmor=1 lsm=landlock,lockdown,yama,apparmor,bpf audit=1"
   # CPU mitigations
   systemdboot_options="${systemdboot_options} spectre_v2=on"
   systemdboot_options="${systemdboot_options} spec_store_bypass_disable=on"
@@ -94,7 +94,7 @@ initialize(){
   systemdboot_options="${systemdboot_options} systemd.dump_core=0"
   systemdboot_options="${systemdboot_options} biosdevname=0 net.ifnames=0"
   systemdboot_options="${systemdboot_options} cryptdevice=/dev/${volume}/root:root:allow-discards root=/dev/mapper/root"
-  systemdboot_options="${systemdboot_options} quiet rw"
+  systemdboot_options="${systemdboot_options} quiet loglevel=0 rw"
   systemdboot_entry="${systemdboot_entry} ${systemdboot_options}"
 
   return 0
@@ -160,6 +160,9 @@ setup_drive(){
 }
 
 setup_system(){
+  # Update pacman databases
+  pacman -Syy
+
   # Begin pacstrap
   pacstrap /mnt $core_pack
 

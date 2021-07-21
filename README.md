@@ -2,8 +2,8 @@
 Author: Daechir <br/>
 Author URL: https://github.com/daechir <br/>
 License: GNU GPL <br/>
-Modified Date: 06/20/21 <br/>
-Version: v3d1
+Modified Date: 07/21/21 <br/>
+Version: v3d2
 
 
 ## Changelog
@@ -27,6 +27,17 @@ Version: v3d1
       * The implemented changes should still remain in place incase another package pulls colord in again.
     + Update all .service files to match upstream versions.
     + Quiet wpa_supplicant.service.
++ v3d2
+  * S1.sh
+    + Add kernel documentation package to core_pack.
+    + lsm= parameter:
+      * Add landlock module for upcoming linux kernel 5.13 security feature.
+      * Add bpf after apparmor, as is indicated via Arch wiki changes.
+    + Add loglevel=0 parameter.
+    + Readd obligatory pacman -Syy before pacstrap.
+  * S2b.sh
+    + Resolved.conf version bump.
+    + xenos-control-defaults.sh suid list version bump.
 
 
 ## Purpose

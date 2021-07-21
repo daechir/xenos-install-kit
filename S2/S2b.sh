@@ -216,7 +216,7 @@ toggle_systemctl(){
   #
   ## Variable prep
   #
-  colord_installed=$(pacman -Qs colord | grep -i -v "lib")
+  colord_installed=$(pacman -Qs colord | grep -i -v "lib" || echo "")
 
   ### Disable some unused services, sockets and targets
   ## Start with dhcpcd, which is removed later
